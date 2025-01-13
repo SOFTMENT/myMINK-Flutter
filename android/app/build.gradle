@@ -1,0 +1,60 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.softment.mymink"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "com.softment.mymink"
+        minSdk = 24
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+
+        // ✅ Enable Crashlytics NDK reporting (Optional, but recommended)
+        ndk {
+            debugSymbolLevel = 'FULL'
+        }
+    }
+
+    buildTypes {
+        release {
+            // Disable code shrinking and resource shrinking
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.debug
+
+            // Crashlytics configuration
+            firebaseCrashlytics {
+                mappingFileUploadEnabled true
+            }
+        }
+    }
+
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
+}

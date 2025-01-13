@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "88795297710",
+    "project_id": "my-mink",
+    "storage_bucket": "my-mink.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88795297710:android:157efdd659c6217e053a3f",
+        "android_client_info": {
+          "package_name": "com.softment.mymink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "88795297710-8i9rikjb8dj6cs5pk3kff67ta7aobup6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOhSAlt4wRKpVW5ZxpOHOG1Qs7kXQKvrM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "88795297710-8i9rikjb8dj6cs5pk3kff67ta7aobup6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "88795297710-i9ip2gjgek201mnqut3cdv78csoppdm2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "in.softment.myMink"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
