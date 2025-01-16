@@ -40,7 +40,7 @@ dependencies:
   firebase_core: ^3.9.0
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.6.0
-  firebase_messaging: ^15.1.6
+  firebase_messaging: ^15.2.0
   google_maps_flutter: ^2.10.0
   google_places_flutter: ^2.0.9
   http: ^1.2.2
@@ -60,13 +60,13 @@ dependencies:
   flutter_web_auth_2: ^4.1.0
   cloud_functions: ^5.3.0
   uuid: ^4.5.1
-  amplify_api: ^2.5.0
+
   amplify_auth_cognito: ^2.5.0
   amplify_storage_s3: ^2.5.0
   amplify_flutter: ^2.5.0
-  amplify_secure_storage: ^0.5.7
-  amplify_secure_storage_dart: ^0.5.3
+
   flutter_branch_sdk: ^8.3.1
+  cached_network_image: ^3.4.1
 
 dependency_overrides:
   web: ^0.5.0

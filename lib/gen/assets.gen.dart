@@ -254,6 +254,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/image-2.png
   AssetGenImage get image2 => const AssetGenImage('assets/images/image-2.png');
 
+  /// File path: assets/images/imageload.gif
+  AssetGenImage get imageload =>
+      const AssetGenImage('assets/images/imageload.gif');
+
   /// File path: assets/images/instagram.png
   AssetGenImage get instagram =>
       const AssetGenImage('assets/images/instagram.png');
@@ -354,6 +358,9 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/qr-code.png
   AssetGenImage get qrCode => const AssetGenImage('assets/images/qr-code.png');
+
+  /// File path: assets/images/quote.png
+  AssetGenImage get quote => const AssetGenImage('assets/images/quote.png');
 
   /// File path: assets/images/record-button-3_2-removebg-preview.png
   AssetGenImage get recordButton32RemovebgPreview => const AssetGenImage(
@@ -481,6 +488,10 @@ class $AssetsImagesGen {
   AssetGenImage get verified =>
       const AssetGenImage('assets/images/verified.png');
 
+  /// File path: assets/images/video-play-white.png
+  AssetGenImage get videoPlayWhite =>
+      const AssetGenImage('assets/images/video-play-white.png');
+
   /// File path: assets/images/video-play.png
   AssetGenImage get videoPlay =>
       const AssetGenImage('assets/images/video-play.png');
@@ -576,6 +587,7 @@ class $AssetsImagesGen {
         icons8Calendar48,
         icons8Location96,
         image2,
+        imageload,
         instagram,
         kisspngQrCodeBarcode2dCodeIntelImageScannerQrCodePngImagesFreeDownload5cd6ceb46ecd378745960315575814924539,
         linkedin,
@@ -603,6 +615,7 @@ class $AssetsImagesGen {
         placeholder,
         playimage,
         qrCode,
+        quote,
         recordButton32RemovebgPreview,
         reddit,
         reelcomment,
@@ -639,6 +652,7 @@ class $AssetsImagesGen {
         user2F,
         verification,
         verified,
+        videoPlayWhite,
         videoPlay,
         video1F,
         view,

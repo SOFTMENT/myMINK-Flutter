@@ -10,20 +10,20 @@ class DeepLinkService {
     try {
       // Create a BranchUniversalObject
       BranchUniversalObject buo = BranchUniversalObject(
-        canonicalIdentifier: userModel.username ?? "123",
+        canonicalIdentifier: 'softment121' ?? "123",
         title: userModel.fullName ?? "Full Name",
         contentDescription: userModel.biography ?? '',
         imageUrl:
             '${ApiConstants.awsImageBaseURL}/public/${userModel.profilePic ?? ""}',
         contentMetadata: BranchContentMetaData()
-          ..addCustomMetadata('username', userModel.username ?? "123")
+          ..addCustomMetadata('username', 'softment121')
           ..addCustomMetadata('uid', userModel.uid ?? "123"),
       );
 
       // Create link properties
       BranchLinkProperties linkProperties = BranchLinkProperties(
         feature: 'user_profile',
-        alias: userModel.username ?? "123",
+        alias: 'softment121',
       );
       linkProperties.addControlParam("\$ios_url",
           "https://itunes.apple.com/us/app/my-MINK/id6448769013?ls=1&mt=8");
@@ -41,6 +41,7 @@ class DeepLinkService {
         throw Exception('Failed to create deep link: ${response.errorMessage}');
       }
     } catch (e) {
+      print('ERROR is ${e}');
       return Result(error: e.toString());
     }
   }

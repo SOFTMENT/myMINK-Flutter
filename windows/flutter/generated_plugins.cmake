@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   amplify_db_common
   cloud_firestore
-  connectivity_plus
   desktop_webview_window
   file_selector_windows
   firebase_auth

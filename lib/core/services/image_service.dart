@@ -1,5 +1,6 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:mymink/core/constants/api_constants.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'dart:io';
 
 class ImageService {
   final ImagePicker _picker = ImagePicker();
+  static const String baseUrl = ApiConstants.awsImageBaseURL;
 
   /// Pick Image from Gallery or Camera
   Future<File?> pickImage(BuildContext context, String source) async {
@@ -152,5 +154,42 @@ class ImageService {
         );
       },
     );
+  }
+
+  /// Generate the URL for the image with transformations
+  static String generateImageUrl({
+    required String imagePath, // The path of the image in S3
+    String? transformationType, // e.g., "fit-in", "resize"
+    int? width, // Width for resizing
+    int? height, // Height for resizing
+    String? format, // e.g., "webp", "jpeg", etc.
+    int? quality, // e.g., 80 for lossy compression
+  }) {
+    // Build the transformation part of the URL
+    String transformation = "";
+
+    // Add resizing transformations
+    if (transformationType != null && (width != null || height != null)) {
+      transformation += "$transformationType/";
+      if (width != null && height != null) {
+        transformation += "${width}x$height/";
+      } else if (width != null) {
+        transformation += "${width}x/";
+      } else if (height != null) {
+        transformation += "x$height/";
+      }
+    }
+
+    // Add format and quality filters
+    if (format != null) {
+      transformation += "filters:format($format)/";
+    }
+    if (quality != null) {
+      transformation += "filters:quality($quality)/";
+    }
+
+    print("$baseUrl/$transformation$imagePath");
+    // Build the complete URL
+    return "$baseUrl/$transformation$imagePath";
   }
 }

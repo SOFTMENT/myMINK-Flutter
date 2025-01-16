@@ -1,12 +1,13 @@
-import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:mymink/amplify_outputs.dart';
+
+import 'package:mymink/amplifyconfiguration.dart';
 
 import 'package:mymink/firebase_options.dart';
 import 'package:mymink/routes/app_router.dart';
@@ -19,6 +20,7 @@ void main() async {
   await dotenv.load();
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   await configureAmplify();
+  await FlutterBranchSdk.init();
   runApp(App());
 }
 
@@ -26,10 +28,9 @@ Future<void> configureAmplify() async {
   try {
     await Amplify.addPlugins([
       AmplifyAuthCognito(),
-      AmplifyAPI(),
       AmplifyStorageS3(),
     ]);
-    await Amplify.configure(amplifyConfig);
+    await Amplify.configure(amplifyconfig);
   } catch (e) {}
 }
 

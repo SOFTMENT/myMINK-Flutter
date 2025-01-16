@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '14.2'
+# platform :ios, '12.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -31,37 +31,14 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  flutter_install_all_ios_pods(File.dirname(File.realpath(__FILE__)))
-
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
     inherit! :search_paths
   end
 end
 
-# Post-install hook to add permission_handler definitions
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
-
-    # Add preprocessor definitions for permission_handler
-    target.build_configurations.each do |config|
-      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
-        '$(inherited)',
-        'PERMISSION_CAMERA=1',
-        'PERMISSION_MICROPHONE=1',
-        'PERMISSION_PHOTOS=1',
-        'PERMISSION_LOCATION=1',
-        'PERMISSION_NOTIFICATIONS=1',
-        'PERMISSION_CONTACTS=1',
-        'PERMISSION_MEDIA_LIBRARY=1',
-        'PERMISSION_SPEECH_RECOGNIZER=0',
-        'PERMISSION_EVENTS=0',
-        'PERMISSION_REMINDERS=0',
-        'PERMISSION_BLUETOOTH=0',
-        'PERMISSION_SENSORS=0',
-        'PERMISSION_APP_TRACKING_TRANSPARENCY=0',
-        'PERMISSION_CRITICAL_ALERTS=0'
-      ]
-    end
   end
 end

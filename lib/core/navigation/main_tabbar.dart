@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mymink/core/constants/colors.dart';
+import 'package:mymink/features/home/pages/home_page.dart';
 
 import 'package:mymink/features/onboarding/pages/under_construction_page.dart';
 import 'package:mymink/gen/assets.gen.dart';
@@ -13,7 +15,7 @@ class _MainTabBarState extends State<MainTabBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    UnderConstructionPage(),
+    HomePage(),
     UnderConstructionPage(),
     UnderConstructionPage(),
     UnderConstructionPage(),
@@ -28,8 +30,16 @@ class _MainTabBarState extends State<MainTabBar> {
     });
   }
 
+  void hideStatusBar() {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: [SystemUiOverlay.bottom], // Hides the top (status bar) only
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    hideStatusBar();
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(

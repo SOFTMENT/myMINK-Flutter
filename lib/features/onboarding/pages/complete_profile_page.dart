@@ -42,7 +42,6 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
   final ImageService _imageService = ImageService();
   File? _profileImage;
   var _isLoading = false;
-  var _isLoadingLbl = "";
 
   @override
   void dispose() {
@@ -368,6 +367,7 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
 
                             itemBuilder: (context, index) {
                               return ListTile(
+                                leading: Icon(Icons.place_outlined),
                                 title: Text(_places[index]['description']),
                                 onTap: () {
                                   _selectPlace(_places[index]['description']);
@@ -444,9 +444,7 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
           ),
           if (_isLoading)
             Center(
-              child: ProgressHud(
-                message: _isLoadingLbl,
-              ),
+              child: ProgressHud(),
             ),
         ],
       ),

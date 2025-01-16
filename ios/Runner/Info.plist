@@ -16,8 +16,10 @@
 <key>SignInWithApple</key>
 <true/>
 
-
-
+<key>FlutterDeepLinkingEnabled</key>
+<false/>
+<key>branch_key</key>
+<string>key_live_mvjwRwp6cXVIpIJM7FOBhjclxsjNUZWv</string>
 
 
 <key>IOSTransportSecurity</key>

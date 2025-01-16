@@ -6,56 +6,68 @@ import 'package:flutter/material.dart';
 import 'package:mymink/core/utils/result.dart';
 
 class AWSUploader {
+  static bool _isDialogVisible =
+      false; // Track dialog visibility to prevent multiple dialogs
+
+  // Show the progress dialog while uploading
   static Future<void> showProgressDialog(
-      BuildContext context, String progressPercentage) {
-    return showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent, // Transparent background
-          elevation: 0,
-          child: Container(
-            padding: EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.black
-                  .withValues(alpha: 0.75), // Semi-transparent black
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: Colors.white, // White color for the spinner
-                ),
-                SizedBox(width: 20),
-                Text(
-                  'Uploading: $progressPercentage%',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+      BuildContext context, String progressPercentage) async {
+    if (!_isDialogVisible) {
+      _isDialogVisible = true;
+      return showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent dismissing by tapping outside
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent, // Transparent background
+            elevation: 0,
+            child: Container(
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.black
+                    .withValues(alpha: 0.65), // Semi-transparent black
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    color: Colors.white, // White color for the spinner
                   ),
-                ),
-              ],
+                  SizedBox(width: 20),
+                  Text(
+                    'Uploading: $progressPercentage%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
   }
 
+  // Hide the progress dialog
+  static void hideProgressDialog(BuildContext context) {
+    if (_isDialogVisible) {
+      Navigator.of(context).pop();
+      _isDialogVisible = false;
+    }
+  }
+
+  // Check explicit content in an image using Firebase Function
   static Future<bool> checkExplicitImage(String image) async {
     try {
-      // Data to pass to the Cloud Function
       final data = {'image': image};
-
-      // Call the Cloud Function
       final result = await FirebaseFunctions.instance
           .httpsCallable('checkExplicitImage')
           .call(data);
 
-      // Parse the result
       final resultData = result.data as Map<String, dynamic>;
       if (resultData.containsKey('isExplicit')) {
         return resultData['isExplicit'] as bool;
@@ -103,7 +115,6 @@ class AWSUploader {
             if (!shouldHideProgress) {
               final progressPercentage =
                   (progress.fractionCompleted * 100).toStringAsFixed(2);
-              Navigator.of(context).pop();
               showProgressDialog(context, progressPercentage);
             }
           },
@@ -111,9 +122,9 @@ class AWSUploader {
 
         final result = await uploadTask.result;
 
-        // Hide ProgressHud
+        // Hide ProgressHud if needed
         if (!shouldHideProgress) {
-          Navigator.of(context).pop();
+          hideProgressDialog(context);
         }
 
         // Delete the previous file if needed
@@ -144,7 +155,6 @@ class AWSUploader {
             if (!shouldHideProgress) {
               final progressPercentage =
                   (progress.fractionCompleted * 100).toStringAsFixed(2);
-              Navigator.of(context).pop();
               showProgressDialog(context, progressPercentage);
             }
           },
@@ -152,9 +162,9 @@ class AWSUploader {
 
         final result = await uploadTask.result;
 
-        // Hide ProgressHud
+        // Hide ProgressHud if needed
         if (!shouldHideProgress) {
-          Navigator.of(context).pop();
+          hideProgressDialog(context);
         }
 
         // Delete the previous file if needed
@@ -168,7 +178,7 @@ class AWSUploader {
     } catch (e) {
       // Hide ProgressHud if there's an error
       if (!shouldHideProgress) {
-        Navigator.of(context).pop();
+        hideProgressDialog(context);
       }
       return Result(error: e.toString());
     }
