@@ -10,7 +10,7 @@ class CommonUtils {
 
     // Show a snackbar to confirm copy
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Copied to clipboard!')),
+      const SnackBar(content: Text('Copied to clipboard!')),
     );
   }
 

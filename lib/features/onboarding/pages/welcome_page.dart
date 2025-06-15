@@ -22,7 +22,7 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Future<void> _handleNavigation() async {
-    AuthService.checkFirstLaunch();
+    await AuthService.checkFirstLaunch();
 
     if (AuthService.isLoggedIn) {
       await UserService.handleUserStateByUid(
@@ -38,7 +38,7 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Assets.images.logo.image(width: 210),
+        child: Assets.images.logo.image(width: 160),
       ),
     );
   }

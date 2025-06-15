@@ -28,7 +28,7 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
           widget.onStatusChanged(_isCheck);
         });
       },
-      visualDensity: VisualDensity(
+      visualDensity: const VisualDensity(
           horizontal: VisualDensity.minimumDensity,
           vertical:
               VisualDensity.minimumDensity), // Removes any additional density

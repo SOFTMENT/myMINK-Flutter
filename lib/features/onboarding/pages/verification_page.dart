@@ -14,6 +14,7 @@ import 'package:mymink/core/widgets/custom_button.dart';
 import 'package:mymink/core/widgets/custom_dialog.dart';
 
 import 'package:mymink/core/widgets/custom_text_button.dart';
+import 'package:mymink/core/widgets/dismiss_keyboard_ontap.dart';
 import 'package:mymink/core/widgets/progress_hud.dart';
 
 import 'package:mymink/features/onboarding/data/services/auth_service.dart';
@@ -219,7 +220,7 @@ class _VerificationPageState extends State<VerificationPage> {
           await TwilioService.sendTwilioVerification(widget.verificationUid!);
       error == null
           ? ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+              const SnackBar(
                 content: Text('Code has been sent'),
               ),
             )
@@ -229,7 +230,7 @@ class _VerificationPageState extends State<VerificationPage> {
           widget.email!, widget.verificationCode!, widget.type);
       error == null
           ? ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+              const SnackBar(
                 content: Text('Code has been sent'),
               ),
             )
@@ -247,7 +248,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
   void _startTimer() {
     _counter = 60;
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_counter > 0) {
           _counter--;
@@ -270,173 +271,180 @@ class _VerificationPageState extends State<VerificationPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
-            child: Column(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    Assets.images.colorfuldesign.image(
-                        height: 260, width: double.infinity, fit: BoxFit.fill),
-                    Positioned(
-                      child: Assets.images.logo.image(width: 100, height: 100),
-                      top: 200,
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(25, 70, 25, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
+          DismissKeyboardOnTap(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          context.pop();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(
-                              12), // Control the padding for the icon
-                          decoration: BoxDecoration(
-                            color:
-                                Colors.white, // Background color of the button
-                            borderRadius: BorderRadius.circular(
-                                8), // Border radius of the button
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withValues(
-                                    alpha: 0.3), // Drop shadow color
-                                spreadRadius: 1,
-                                blurRadius: 4,
-                                offset: Offset(0, 2), // Shadow position
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_outlined, // Your icon
-                            color: Colors.black, // Icon color
-                            size: 18, // Icon size
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        "Enter Code",
-                        style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textBlack),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Enter one time password sent to your email address",
-                        style:
-                            TextStyle(fontSize: 14, color: AppColors.textGrey),
-                      ),
-                      const SizedBox(height: 32),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 66,
-                              width: double.infinity,
-                              child: TextFormField(
-                                keyboardType: TextInputType.number,
-                                autocorrect: false,
-                                onSaved: (newValue) {
-                                  _code = newValue!;
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Enter verification code.';
-                                  }
-
-                                  if (widget.type !=
-                                          VerificationType.PHONE_VERIFICATION &&
-                                      value.trim() !=
-                                          widget.verificationCode.toString()) {
-                                    return 'Incorrect code.';
-                                  }
-
-                                  return null;
-                                },
-                                decoration: buildInputDecoration(
-                                    labelText: "Code", prefixIcon: null),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 32,
-                            ),
-                            CustomButton(
-                                text: "Verify",
-                                onPressed: _verifiyCode,
-                                backgroundColor: AppColors.textBlack),
-                            SizedBox(
-                              height: _counter > 0 ? 40 : 28,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 40,
-                                  child: Divider(
-                                    height: 0.6,
-                                    color: AppColors.textGrey
-                                        .withValues(alpha: 0.3),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "Or resend",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textGrey,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  width: 40,
-                                  child: Divider(
-                                    height: 0.6,
-                                    color: AppColors.textGrey
-                                        .withValues(alpha: 0.3),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                _counter > 0
-                                    ? Text(
-                                        '$_counter seconds',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.textBlack,
-                                        ),
-                                      )
-                                    : CustomTextButton(
-                                        title: "Resend Code",
-                                        color: AppColors.primaryBlue,
-                                        fontSize: 14,
-                                        onPressed: _resendVerificationCode),
-                              ],
-                            ),
-                          ],
-                        ),
+                      Assets.images.colorfuldesign.image(
+                          height: 260,
+                          width: double.infinity,
+                          fit: BoxFit.fill),
+                      Positioned(
+                        child:
+                            Assets.images.logo.image(width: 100, height: 100),
+                        top: 200,
                       ),
                     ],
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(25, 70, 25, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            context.pop();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(
+                                12), // Control the padding for the icon
+                            decoration: BoxDecoration(
+                              color: Colors
+                                  .white, // Background color of the button
+                              borderRadius: BorderRadius.circular(
+                                  8), // Border radius of the button
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(
+                                      alpha: 0.3), // Drop shadow color
+                                  spreadRadius: 1,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2), // Shadow position
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_outlined, // Your icon
+                              color: Colors.black, // Icon color
+                              size: 18, // Icon size
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          "Enter Code",
+                          style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textBlack),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Enter one time password sent to your ${widget.type == VerificationType.PHONE_VERIFICATION ? 'phone number.' : 'email address.'}",
+                          style: const TextStyle(
+                              fontSize: 14, color: AppColors.textGrey),
+                        ),
+                        const SizedBox(height: 32),
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 66,
+                                width: double.infinity,
+                                child: TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  autocorrect: false,
+                                  onSaved: (newValue) {
+                                    _code = newValue!;
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Enter verification code.';
+                                    }
+
+                                    if (widget.type !=
+                                            VerificationType
+                                                .PHONE_VERIFICATION &&
+                                        value.trim() !=
+                                            widget.verificationCode
+                                                .toString()) {
+                                      return 'Incorrect code.';
+                                    }
+
+                                    return null;
+                                  },
+                                  decoration: buildInputDecoration(
+                                      labelText: "Code", prefixIcon: null),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 32,
+                              ),
+                              CustomButton(
+                                  text: "Verify",
+                                  onPressed: _verifiyCode,
+                                  backgroundColor: AppColors.textBlack),
+                              SizedBox(
+                                height: _counter > 0 ? 40 : 28,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 40,
+                                    child: Divider(
+                                      height: 0.6,
+                                      color: AppColors.textGrey
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  const Text(
+                                    "Or resend",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.textGrey,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  SizedBox(
+                                    width: 40,
+                                    child: Divider(
+                                      height: 0.6,
+                                      color: AppColors.textGrey
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  _counter > 0
+                                      ? Text(
+                                          '$_counter seconds',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.textBlack,
+                                          ),
+                                        )
+                                      : CustomTextButton(
+                                          title: "Resend Code",
+                                          color: AppColors.primaryBlue,
+                                          fontSize: 14,
+                                          onPressed: _resendVerificationCode),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           if (_isLoading)

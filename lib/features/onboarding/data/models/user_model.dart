@@ -83,7 +83,6 @@ class UserModel {
     this.dob,
   });
 
-  // ✅ fromJson() method to map Firestore document data to UserModel
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       profilePic: json['profilePic'],

@@ -16,7 +16,8 @@ class CountryPicker {
             return Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(30)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
@@ -27,7 +28,7 @@ class CountryPicker {
               ),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -51,12 +52,12 @@ class CountryPicker {
                           BoxShadow(
                             color: Colors.white.withValues(alpha: 0.5),
                             blurRadius: 30,
-                            offset: Offset(-10, -10),
+                            offset: const Offset(-10, -10),
                           ),
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 30,
-                            offset: Offset(10, 10),
+                            offset: const Offset(10, 10),
                           ),
                         ],
                       ),
@@ -66,7 +67,7 @@ class CountryPicker {
                           prefixIcon:
                               Icon(Icons.search, color: Colors.grey[600]),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                               vertical: 15, horizontal: 10),
                         ),
                         onChanged: (value) {
@@ -95,14 +96,14 @@ class CountryPicker {
                           final country = filteredList[index];
                           return ListTile(
                             contentPadding:
-                                EdgeInsets.symmetric(horizontal: 10),
+                                const EdgeInsets.symmetric(horizontal: 10),
                             leading: Text(
                               country['flag']!,
-                              style: TextStyle(fontSize: 28),
+                              style: const TextStyle(fontSize: 28),
                             ),
                             title: Text(
                               country['name']!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Colors.black87,

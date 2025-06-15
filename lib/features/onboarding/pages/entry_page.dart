@@ -1,11 +1,15 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/colors.dart';
+import 'package:mymink/core/services/notification_service.dart';
 import 'package:mymink/core/utils/url_utils.dart';
 import 'package:mymink/core/widgets/custom_button.dart';
 import 'package:mymink/core/widgets/custom_checkbox.dart';
 import 'package:mymink/core/widgets/custom_text_button.dart';
+import 'package:mymink/features/onboarding/data/models/user_model.dart';
+import 'package:mymink/features/onboarding/data/services/user_service.dart';
 import 'package:mymink/gen/assets.gen.dart';
 
 class EntryPage extends StatefulWidget {
@@ -16,6 +20,11 @@ class EntryPage extends StatefulWidget {
 }
 
 class _EntryPageState extends State<EntryPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   var _isCheck = false;
   @override
   Widget build(BuildContext context) {
@@ -39,29 +48,29 @@ class _EntryPageState extends State<EntryPage> {
             const SizedBox(
               height: 24,
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(horizontal: 25),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "Unroll the world with",
                     style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: 1,
                   ),
-                  const Text(
+                  Text(
                     "my MINK",
                     style: TextStyle(
                         fontSize: 23,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textBlack),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: 12,
                   ),
-                  const Text(
+                  Text(
                     "Let’s get started with a login or create your new my MINK account.",
                     style: TextStyle(fontSize: 14, color: AppColors.textGrey),
                   ),
@@ -111,7 +120,7 @@ class _EntryPageState extends State<EntryPage> {
               height: 16,
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(25, 0, 25, 32),
+              padding: const EdgeInsets.fromLTRB(25, 0, 25, 32),
               child: Column(
                 children: [
                   CustomButton(
@@ -121,7 +130,7 @@ class _EntryPageState extends State<EntryPage> {
                           context.push(AppRoutes.login);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
                               content:
                                   Text("Please accept EULA & Terms Of Use"),
                             ),
@@ -139,7 +148,7 @@ class _EntryPageState extends State<EntryPage> {
                           context.push(AppRoutes.signup);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
                               content:
                                   Text("Please accept EULA & Terms Of Use"),
                             ),

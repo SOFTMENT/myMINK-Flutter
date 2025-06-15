@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/softment/tools/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/softment/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/softment/Desktop/flutter/mymink/android/app/.cxx/Debug/421h1ev5/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/softment/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/softment/Desktop/flutter/mymink/android/app/.cxx/Debug/421h1ev5/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

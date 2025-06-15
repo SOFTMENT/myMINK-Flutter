@@ -4,8 +4,11 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   amplify_db_common
+  audioplayers_linux
   desktop_webview_window
+  devicelocale
   file_selector_linux
+  sentry_flutter
   url_launcher_linux
   window_to_front
 )

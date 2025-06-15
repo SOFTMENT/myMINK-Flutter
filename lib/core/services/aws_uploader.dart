@@ -5,59 +5,87 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:mymink/core/utils/result.dart';
 
-class AWSUploader {
-  static bool _isDialogVisible =
-      false; // Track dialog visibility to prevent multiple dialogs
+typedef ProgressCallback = void Function(double progress);
 
-  // Show the progress dialog while uploading
-  static Future<void> showProgressDialog(
-      BuildContext context, String progressPercentage) async {
-    if (!_isDialogVisible) {
-      _isDialogVisible = true;
-      return showDialog(
-        context: context,
-        barrierDismissible: false, // Prevent dismissing by tapping outside
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Colors.transparent, // Transparent background
-            elevation: 0,
+class AWSUploader {
+  static OverlayEntry? _overlayEntry;
+  static bool _isDialogVisible = false;
+  static String _latestProgress = "0"; // Store latest progress
+
+  // Show or update the progress dialog
+  static void showProgressDialog(
+      BuildContext context, String progressPercentage) {
+    _latestProgress = progressPercentage; // Update progress text
+
+    if (_isDialogVisible) {
+      _updateProgress(); // If already visible, update instead of recreating
+      return;
+    }
+
+    _isDialogVisible = true;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => _buildOverlay(),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  // Hide the progress dialog
+  static void hideProgressDialog() {
+    if (_isDialogVisible) {
+      _isDialogVisible = false;
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    }
+  }
+
+  // Update progress text inside the existing overlay without stacking
+  static void _updateProgress() {
+    _overlayEntry?.markNeedsBuild();
+  }
+
+  // Build overlay UI with updated progress
+  static Widget _buildOverlay() {
+    return Stack(
+      children: [
+        Container(
+          color: Colors.black.withValues(alpha: 0.4), // Dim background
+        ),
+        Center(
+          child: Material(
+            color: Colors.transparent,
             child: Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.black
-                    .withValues(alpha: 0.65), // Semi-transparent black
+                    .withValues(alpha: 0.8), // Semi-transparent black
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(
-                    color: Colors.white, // White color for the spinner
-                  ),
-                  SizedBox(width: 20),
-                  Text(
-                    'Uploading: $progressPercentage%',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const CircularProgressIndicator(color: Colors.white),
+                  const SizedBox(width: 20),
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      return Text(
+                        'Uploading: $_latestProgress%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-          );
-        },
-      );
-    }
-  }
-
-  // Hide the progress dialog
-  static void hideProgressDialog(BuildContext context) {
-    if (_isDialogVisible) {
-      Navigator.of(context).pop();
-      _isDialogVisible = false;
-    }
+          ),
+        ),
+      ],
+    );
   }
 
   // Check explicit content in an image using Firebase Function
@@ -75,7 +103,6 @@ class AWSUploader {
         throw Exception('Invalid response format');
       }
     } catch (e) {
-      print('Error calling checkExplicitImage: $e');
       return false;
     }
   }
@@ -87,87 +114,56 @@ class AWSUploader {
     required String folderName,
     required PostType postType,
     bool shouldHideProgress = false,
-    String type = "jpg",
+    String type = "png",
     String? previousKey,
-    required BuildContext context, // Added context to show the ProgressHud
+    required BuildContext context,
+    ProgressCallback? onProgress, // added callback parameter
   }) async {
     try {
       if (postType == PostType.image) {
-        // Image Upload
         if (photo == null) {
           return Result(error: 'Photo file is required for image upload.');
         }
-
-        final String fileType = type == "jpg" ? "jpeg" : "png";
         final String filePath =
-            "$folderName/${DateTime.now().millisecondsSinceEpoch}.$fileType";
+            "$folderName/${DateTime.now().millisecondsSinceEpoch}.$type";
 
-        // Show initial ProgressHud
-        if (!shouldHideProgress) {
-          showProgressDialog(context, "0.0");
-        }
-
-        // Upload the image
         final uploadTask = Amplify.Storage.uploadFile(
           localFile: AWSFilePlatform.fromFile(photo),
           path: StoragePath.fromString(filePath),
           onProgress: (progress) {
-            if (!shouldHideProgress) {
-              final progressPercentage =
-                  (progress.fractionCompleted * 100).toStringAsFixed(2);
-              showProgressDialog(context, progressPercentage);
+            // Report progress via the callback if provided
+            if (onProgress != null) {
+              onProgress(progress.fractionCompleted);
             }
           },
         );
 
         final result = await uploadTask.result;
 
-        // Hide ProgressHud if needed
-        if (!shouldHideProgress) {
-          hideProgressDialog(context);
-        }
-
-        // Delete the previous file if needed
         if (previousKey != null) {
           await deleteAWSFile(previousKey, postType);
         }
 
         return Result(data: result.uploadedItem.path);
       } else if (postType == PostType.video) {
-        // Video Upload
         if (video == null) {
           return Result(error: 'Video file is required for video upload.');
         }
-
         final String filePath =
-            "$folderName/${DateTime.now().millisecondsSinceEpoch}.mov";
+            "$folderName/${DateTime.now().millisecondsSinceEpoch}.mp4";
 
-        // Show initial ProgressHud
-        if (!shouldHideProgress) {
-          showProgressDialog(context, "0.0");
-        }
-
-        // Upload the video
         final uploadTask = Amplify.Storage.uploadFile(
           localFile: AWSFilePlatform.fromFile(video),
           path: StoragePath.fromString(filePath),
           onProgress: (progress) {
-            if (!shouldHideProgress) {
-              final progressPercentage =
-                  (progress.fractionCompleted * 100).toStringAsFixed(2);
-              showProgressDialog(context, progressPercentage);
+            if (onProgress != null) {
+              onProgress(progress.fractionCompleted);
             }
           },
         );
 
         final result = await uploadTask.result;
 
-        // Hide ProgressHud if needed
-        if (!shouldHideProgress) {
-          hideProgressDialog(context);
-        }
-
-        // Delete the previous file if needed
         if (previousKey != null) {
           await deleteAWSFile(previousKey, postType);
         }
@@ -176,10 +172,6 @@ class AWSUploader {
       }
       return Result(error: "Invalid file type");
     } catch (e) {
-      // Hide ProgressHud if there's an error
-      if (!shouldHideProgress) {
-        hideProgressDialog(context);
-      }
       return Result(error: e.toString());
     }
   }
@@ -199,4 +191,4 @@ class AWSUploader {
 }
 
 // Enum to represent Post Type
-enum PostType { image, video }
+enum PostType { image, video, text }

@@ -21,10 +21,10 @@ class CopyPasswordPage extends StatelessWidget {
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
-              Assets.images.colorfuldesign.image(
-                  height: 260, width: double.infinity, fit: BoxFit.fitWidth),
+              Assets.images.colorfuldesign
+                  .image(height: 260, width: double.infinity, fit: BoxFit.fill),
               Positioned(
-                child: Assets.images.logo.image(width: 100, height: 100),
+                child: Assets.images.logo.image(width: 120, height: 120),
                 top: 200,
               ),
             ],
@@ -35,7 +35,7 @@ class CopyPasswordPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   "Great!, here is your password",
                   style: TextStyle(fontSize: 18, color: AppColors.textBlack),
                 ),
@@ -49,7 +49,7 @@ class CopyPasswordPage extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withValues(
                             alpha: 0.1), // Shadow color with some transparency
-                        offset: Offset(0, 2), // Shadow position
+                        offset: const Offset(0, 2), // Shadow position
                         blurRadius: 8, // Blur radius for the shadow
                         spreadRadius:
                             0, // Spread radius to control how far the shadow spreads
@@ -63,7 +63,7 @@ class CopyPasswordPage extends StatelessWidget {
                       children: [
                         Text(
                           email,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: AppColors.primaryRed, fontSize: 17),
                         ),
                         const SizedBox(
@@ -71,10 +71,10 @@ class CopyPasswordPage extends StatelessWidget {
                         ),
                         Text(
                           password,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: AppColors.primaryRed, fontSize: 17),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         IconButton(

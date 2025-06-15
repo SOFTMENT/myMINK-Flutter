@@ -1,0 +1,1 @@
+/Users/softment/Desktop/flutter/mymink/build/app/intermediates/cxx/RelWithDebInfo/82l3z4y1/obj/x86_64

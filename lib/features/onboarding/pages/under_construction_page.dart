@@ -12,15 +12,15 @@ class UnderConstructionPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // App Logo or Icon
-              Icon(
+              const Icon(
                 Icons.build_rounded,
                 size: 100,
                 color: Colors.blueAccent,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // "Coming Soon" Text
-              Text(
+              const Text(
                 'App Coming Soon!',
                 style: TextStyle(
                   fontSize: 28,
@@ -28,7 +28,7 @@ class UnderConstructionPage extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               // Description Text
               Text(

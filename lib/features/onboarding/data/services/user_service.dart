@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mymink/core/constants/app_routes.dart';
+import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/utils/firestore_utils.dart';
 import 'package:mymink/core/utils/result.dart';
 import 'package:mymink/core/widgets/custom_dialog.dart';
@@ -27,7 +28,8 @@ class UserService {
     String? regiType,
   }) async {
     try {
-      var query = _db.collection('Users').where('email', isEqualTo: email);
+      var query =
+          _db.collection(Collections.users).where('email', isEqualTo: email);
       if (regiType != null && regiType.isNotEmpty) {
         query = query.where('regiType', isEqualTo: regiType);
       }
@@ -49,8 +51,9 @@ class UserService {
   static Future<Result<UserModel>> getUserByPhone(
       {required String phoneNumber}) async {
     try {
-      var query =
-          _db.collection('Users').where('phoneNumber', isEqualTo: phoneNumber);
+      var query = _db
+          .collection(Collections.users)
+          .where('phoneNumber', isEqualTo: phoneNumber);
 
       final snapshot = await query.get();
       if (snapshot.docs.isNotEmpty) {
@@ -108,7 +111,7 @@ class UserService {
   /// Get user by UID
   static Future<Result<UserModel>> getUserByUid({required String uid}) async {
     try {
-      final snapshot = await _db.collection('Users').doc(uid).get();
+      final snapshot = await _db.collection(Collections.users).doc(uid).get();
 
       if (snapshot.exists) {
         final userModel = fromFirestore(snapshot, UserModel.fromJson);
@@ -125,7 +128,7 @@ class UserService {
   static Future<bool> isUsernameAvailable(String sUsername) async {
     try {
       final snapshot = await _db
-          .collection('Users')
+          .collection(Collections.users)
           .where('username', isEqualTo: sUsername)
           .get();
 
@@ -142,7 +145,7 @@ class UserService {
     try {
       UserModel.data = userModel;
       await _db
-          .collection('Users')
+          .collection(Collections.users)
           .doc(userModel.uid!)
           .set(userModel.toJson(), SetOptions(merge: true));
 
@@ -176,7 +179,10 @@ class UserService {
 
       UserModel.data = userModel;
 
-      await _db.collection('Users').doc(userModel.uid!).set(userModel.toJson());
+      await _db
+          .collection(Collections.users)
+          .doc(userModel.uid!)
+          .set(userModel.toJson());
 
       return Result(data: userModel);
     } catch (e) {

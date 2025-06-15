@@ -13,6 +13,7 @@ import 'package:mymink/core/utils/common_input_decoration.dart';
 import 'package:mymink/core/utils/image_picker_dialog.dart';
 import 'package:mymink/core/widgets/custom_button.dart';
 import 'package:mymink/core/widgets/custom_dialog.dart';
+import 'package:mymink/core/widgets/dismiss_keyboard_ontap.dart';
 import 'package:mymink/core/widgets/progress_hud.dart';
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
 import 'package:mymink/features/onboarding/data/services/auth_service.dart';
@@ -33,7 +34,6 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
   TextEditingController _controller = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   List<dynamic> _places = [];
-  String _selectedLocation = "";
   String _userName = "";
   String _website = "";
   String _bio = "";
@@ -55,7 +55,7 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
       _formKey.currentState!.save();
       if (_profileImage == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text("Upload Profile Picture"),
           ),
         );
@@ -93,23 +93,22 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
           final isExplicit = await AWSUploader.checkExplicitImage(downloadURL);
           if (isExplicit) {
             await CustomDialog.show(context,
-                title: 'EXPLICIT CONTEN',
+                title: 'EXPLICIT CONTENT',
                 message:
                     "We don't allow explicit content. Please upload a different image.");
 
             setState(() {
-              _isLoading = true;
+              _isLoading = false;
               _profileImage = null;
             });
           } else {
             UserModel userModel = UserModel.instance;
             userModel.biography = _bio;
             userModel.website = _website;
-            userModel.location = _selectedLocation;
-            userModel.username = _userName;
+            userModel.location = _controller.text;
             userModel.dob = _pickedDate;
             userModel.username = _userName;
-            userModel.username = downloadURL;
+            userModel.profilePic = downloadURL;
 
             final result =
                 await DeepLinkService.createDeepLinkForUserProfile(userModel);
@@ -170,276 +169,282 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    SizedBox(
-                      height: 420,
-                      width: double.infinity,
-                    ),
-                    Assets.images.colorfuldesign.image(
-                      height: 260,
-                      width: double.infinity,
-                      fit: BoxFit.fill,
-                    ),
-                    Positioned(
-                      top: 180, // Adjust vertical positioning
-                      left: 0,
-                      right: 0,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Stack(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                AuthService.logout(context);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withValues(alpha: 0.3),
-                                      spreadRadius: 1,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
+          DismissKeyboardOnTap(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const SizedBox(
+                        height: 420,
+                        width: double.infinity,
+                      ),
+                      Assets.images.colorfuldesign.image(
+                        height: 260,
+                        width: double.infinity,
+                        fit: BoxFit.fill,
+                      ),
+                      Positioned(
+                        top: 180, // Adjust vertical positioning
+                        left: 0,
+                        right: 0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                          child: Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  AuthService.logout(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            Colors.grey.withValues(alpha: 0.3),
+                                        spreadRadius: 1,
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_back_outlined,
+                                    color: Colors.black,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Column(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: _profileImage == null
+                                          ? Assets.images.mPlaceholder.image(
+                                              width: 140,
+                                              height: 140,
+                                            )
+                                          : Image(
+                                              image: FileImage(_profileImage!),
+                                              width: 140,
+                                              height: 140,
+                                            ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    const Text(
+                                      "Upload your picture",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: AppColors.textBlack,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: 70,
+                                      height: 32,
+                                      child: CustomButton(
+                                        text: "Upload",
+                                        onPressed: _uploadImage,
+                                        fontSize: 12,
+                                        backgroundColor: AppColors.primaryRed,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                child: Icon(
-                                  Icons.arrow_back_outlined,
-                                  color: Colors.black,
-                                  size: 18,
-                                ),
                               ),
-                            ),
-                            Center(
-                              child: Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: _profileImage == null
-                                        ? Assets.images.mPlaceholder.image(
-                                            width: 140,
-                                            height: 140,
-                                          )
-                                        : Image(
-                                            image: FileImage(_profileImage!),
-                                            width: 140,
-                                            height: 140,
-                                          ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    "Upload your picture",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: AppColors.textBlack,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  SizedBox(
-                                    width: 70,
-                                    height: 32,
-                                    child: CustomButton(
-                                      text: "Upload",
-                                      onPressed: _uploadImage,
-                                      fontSize: 12,
-                                      backgroundColor: AppColors.primaryRed,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 66,
-                          width: double.infinity,
-                          child: TextFormField(
-                            keyboardType: TextInputType.name,
-                            autocorrect: false,
-                            maxLength: 20,
-                            onSaved: (newValue) {
-                              _userName = newValue!;
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter username";
-                              }
-                              return null;
-                            },
-                            decoration: buildInputDecoration(
-                                labelText: "Username *",
-                                prefixIcon: Icons.alternate_email_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: TextFormField(
-                            keyboardType: TextInputType.datetime,
-                            autocorrect: false,
-                            controller: _dateController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Select date of birth";
-                              }
-                              return null;
-                            },
-                            readOnly:
-                                true, // Make the TextFormField readonly to prevent manual input
-                            onTap: () async {
-                              DateTime? pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime(1990),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime(DateTime.now().year - 17),
-                              );
-
-                              if (pickedDate != null) {
-                                // Format the date to "23 January 2024"
-                                String formattedDate = DateFormat('d MMMM yyyy')
-                                    .format(pickedDate);
-                                setState(() {
-                                  _pickedDate = pickedDate;
-                                  _dateController.text = formattedDate;
-                                });
-                              }
-                            },
-                            decoration: buildInputDecoration(
-                                labelText: "Date of Birth *",
-                                prefixIcon: Icons.calendar_month_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: TextFormField(
-                            controller: _controller,
-                            maxLines: 1,
-                            keyboardType: TextInputType.streetAddress,
-                            autocorrect: false,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter Location";
-                              }
-                              return null;
-                            },
-                            onChanged: (value) {
-                              _fetchSuggestions(value);
-                            },
-                            decoration: buildInputDecoration(
-                                labelText: "Location *",
-                                prefixIcon: Icons.location_on_outlined),
-                          ),
-                        ),
-
-                        // ListView to show suggestions
-                        if (_places.isNotEmpty)
-                          ListView.builder(
-                            padding: const EdgeInsets.all(0),
-                            itemCount: _places.length,
-                            shrinkWrap:
-                                true, // Ensures ListView takes up only the space it needs
-
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                leading: Icon(Icons.place_outlined),
-                                title: Text(_places[index]['description']),
-                                onTap: () {
-                                  _selectPlace(_places[index]['description']);
-                                },
-                              );
-                            },
-                          ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-
-                        SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: TextFormField(
-                            keyboardType: TextInputType.url,
-                            autocorrect: false,
-                            textInputAction: TextInputAction.done,
-                            onSaved: (newValue) {
-                              _website = newValue ?? '';
-                            },
-                            decoration: buildInputDecoration(
-                                labelText: "Website",
-                                prefixIcon: Icons.public_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "Biography",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 180,
-                          width: double.infinity,
-                          child: TextFormField(
-                            keyboardType: TextInputType.multiline,
-                            autocorrect: false,
-                            maxLines: 7,
-                            minLines: 7,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter Bio";
-                              }
-                              return null;
-                            },
-                            onSaved: (newValue) {
-                              _bio = newValue!;
-                            },
-                            decoration: buildInputDecoration(
-                                labelText: "", prefixIcon: null),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 32,
-                        ),
-                        CustomButton(
-                            text: "Continue",
-                            onPressed: _continueBtnClicked,
-                            backgroundColor: AppColors.textBlack),
-                        const SizedBox(
-                          height: 32,
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
-                )
-              ],
+                  Form(
+                    key: _formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextFormField(
+                              keyboardType: TextInputType.name,
+                              autocorrect: false,
+                              maxLength: 20,
+                              onSaved: (newValue) {
+                                _userName = newValue!;
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Enter username";
+                                }
+                                return null;
+                              },
+                              decoration: buildInputDecoration(
+                                  labelText: "Username *",
+                                  prefixIcon: Icons.alternate_email_outlined),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextFormField(
+                              keyboardType: TextInputType.datetime,
+                              autocorrect: false,
+                              controller: _dateController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Select date of birth";
+                                }
+                                return null;
+                              },
+                              readOnly:
+                                  true, // Make the TextFormField readonly to prevent manual input
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime(1990),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime(DateTime.now().year - 17),
+                                );
+
+                                if (pickedDate != null) {
+                                  // Format the date to "23 January 2024"
+                                  String formattedDate =
+                                      DateFormat('d MMMM yyyy')
+                                          .format(pickedDate);
+                                  setState(() {
+                                    _pickedDate = pickedDate;
+                                    _dateController.text = formattedDate;
+                                  });
+                                }
+                              },
+                              decoration: buildInputDecoration(
+                                  labelText: "Date of Birth *",
+                                  prefixIcon: Icons.calendar_month_outlined),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextFormField(
+                              controller: _controller,
+                              maxLines: 1,
+                              keyboardType: TextInputType.streetAddress,
+                              autocorrect: false,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Enter Location";
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                _fetchSuggestions(value);
+                              },
+                              decoration: buildInputDecoration(
+                                  labelText: "Location *",
+                                  prefixIcon: Icons.location_on_outlined),
+                            ),
+                          ),
+
+                          // ListView to show suggestions
+                          if (_places.isNotEmpty)
+                            ListView.builder(
+                              padding: const EdgeInsets.all(0),
+                              itemCount: _places.length,
+                              shrinkWrap:
+                                  true, // Ensures ListView takes up only the space it needs
+
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(horizontal: 0),
+                                  leading: const Icon(Icons.place_outlined),
+                                  title: Text(
+                                    _places[index]['description'],
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  onTap: () {
+                                    _selectPlace(_places[index]['description']);
+                                  },
+                                );
+                              },
+                            ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextFormField(
+                              keyboardType: TextInputType.url,
+                              autocorrect: false,
+                              textInputAction: TextInputAction.done,
+                              onSaved: (newValue) {
+                                _website = newValue ?? '';
+                              },
+                              decoration: buildInputDecoration(
+                                  labelText: "Website",
+                                  prefixIcon: Icons.public_outlined),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "Biography",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 180,
+                            width: double.infinity,
+                            child: TextFormField(
+                              textCapitalization: TextCapitalization.sentences,
+                              keyboardType: TextInputType.multiline,
+                              autocorrect: false,
+                              maxLines: 7,
+                              minLines: 7,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Enter Bio";
+                                }
+                                return null;
+                              },
+                              onSaved: (newValue) {
+                                _bio = newValue!;
+                              },
+                              decoration: buildInputDecoration(
+                                  labelText: "", prefixIcon: null),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 32,
+                          ),
+                          CustomButton(
+                              text: "Continue",
+                              onPressed: _continueBtnClicked,
+                              backgroundColor: AppColors.textBlack),
+                          const SizedBox(
+                            height: 32,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           if (_isLoading)

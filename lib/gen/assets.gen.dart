@@ -9,6 +9,28 @@
 
 import 'package:flutter/widgets.dart';
 
+class $AssetsAnimationsGen {
+  const $AssetsAnimationsGen();
+
+  /// File path: assets/animations/countdown.json
+  String get countdown => 'assets/animations/countdown.json';
+
+  /// File path: assets/animations/hearts.json
+  String get hearts => 'assets/animations/hearts.json';
+
+  /// File path: assets/animations/labelloading.json
+  String get labelloading => 'assets/animations/labelloading.json';
+
+  /// File path: assets/animations/scan.json
+  String get scan => 'assets/animations/scan.json';
+
+  /// File path: assets/animations/success.json
+  String get success => 'assets/animations/success.json';
+
+  /// List of all assets
+  List<String> get values => [countdown, hearts, labelloading, scan, success];
+}
+
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
@@ -105,6 +127,9 @@ class $AssetsImagesGen {
   AssetGenImage get addWhite =>
       const AssetGenImage('assets/images/add_white.png');
 
+  /// File path: assets/images/addreel.png
+  AssetGenImage get addreel => const AssetGenImage('assets/images/addreel.png');
+
   /// File path: assets/images/apple-pay.png
   AssetGenImage get applePay =>
       const AssetGenImage('assets/images/apple-pay.png');
@@ -115,6 +140,12 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/arroba.png
   AssetGenImage get arroba => const AssetGenImage('assets/images/arroba.png');
+
+  /// File path: assets/images/bookmark-fill.svg
+  String get bookmarkFill => 'assets/images/bookmark-fill.svg';
+
+  /// File path: assets/images/bookmark.svg
+  String get bookmark => 'assets/images/bookmark.svg';
 
   /// File path: assets/images/bot.png
   AssetGenImage get bot => const AssetGenImage('assets/images/bot.png');
@@ -395,6 +426,9 @@ class $AssetsImagesGen {
   AssetGenImage get saveFill =>
       const AssetGenImage('assets/images/save-fill.png');
 
+  /// File path: assets/images/save.png
+  AssetGenImage get save => const AssetGenImage('assets/images/save.png');
+
   /// File path: assets/images/schedule-2@3x.png
   AssetGenImage get schedule23x =>
       const AssetGenImage('assets/images/schedule-2@3x.png');
@@ -422,6 +456,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/signature-7.png
   AssetGenImage get signature7 =>
       const AssetGenImage('assets/images/signature-7.png');
+
+  /// File path: assets/images/signature.png
+  AssetGenImage get signature =>
+      const AssetGenImage('assets/images/signature.png');
 
   /// File path: assets/images/smiling-face.png
   AssetGenImage get smilingFace =>
@@ -520,7 +558,7 @@ class $AssetsImagesGen {
   AssetGenImage get youtube => const AssetGenImage('assets/images/youtube.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [
+  List<dynamic> get values => [
         a1688784047TrimmyGroup1000003572,
         a1689470707TrimmyMic,
         a1689470707TrimmySwitchcamera,
@@ -545,9 +583,12 @@ class $AssetsImagesGen {
         sunlight,
         wind,
         addWhite,
+        addreel,
         applePay,
         appleIcon,
         arroba,
+        bookmarkFill,
+        bookmark,
         bot,
         brush2,
         building,
@@ -625,6 +666,7 @@ class $AssetsImagesGen {
         roundicon2,
         rumble,
         saveFill,
+        save,
         schedule23x,
         send3x,
         settingsbutton2,
@@ -633,6 +675,7 @@ class $AssetsImagesGen {
         signalStream,
         signal,
         signature7,
+        signature,
         smilingFace,
         snapchat,
         speakeroff,
@@ -668,6 +711,7 @@ class Assets {
   Assets._();
 
   static const String aEnv = '.env';
+  static const $AssetsAnimationsGen animations = $AssetsAnimationsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
 
   /// List of all assets

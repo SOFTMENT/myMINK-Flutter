@@ -12,4 +12,24 @@ class AppRoutes {
   static const String resetVerificationCodePage = '/resetverificationcode';
   static const String phoneVerificationCodePage = '/phoneverificationcode';
   static const String tabbar = '/tabbar';
+  static const String addPost = '/addpost';
+  static const String successPost = '/successpost';
+  static const String editProfilePage = '/editProfilePage';
+  static const String savedPostPage = '/savedPostPage';
+  static const String viewUserProfilePage = '/viewUserProfilePage';
+  static const String cryptocurrencyPage = '/cryptocurrencyPage';
+  static const String dailyHoroscopePage = '/dailyHoroscopePage';
+  static const String horoscopeViewPage = '/horoscopeViewPage';
+  static const String chatbBotPage = '/chatBotPage';
+  static const String libraryHomePage = '/libraryHomePage';
+  static const String globalChatPage = '/globalChatPage';
+  static const String musicHomePage = '/musicHomePage';
+  static const String musicPlayerPage = '/musicPlayerPage';
+  static const String todoHomePage = '/todoHomePage';
+  static const String addUpdateTodoPage = '/addUpdateTodoPage';
+  static const String discussionForumPage = '/discussionForumPage';
+  static const String addDiscussionTopicPage = '/addDiscussionTopicPage';
+  static const String discussionDetailPage = '/discussionDetailPage';
+  static const String libraryAtoZPage = '/libraryAtoZPage';
+  static const String userQrcodePage = '/userQrCodePage';
 }
