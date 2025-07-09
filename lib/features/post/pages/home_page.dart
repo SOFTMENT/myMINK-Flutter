@@ -7,8 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mymink/core/constants/api_constants.dart';
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/colors.dart';
+import 'package:mymink/core/services/aws_uploader.dart';
+import 'package:mymink/core/services/my_video_cache_manager.dart';
+import 'package:mymink/core/services/notification_service.dart';
 import 'package:mymink/core/utils/common_input_decoration.dart';
 import 'package:mymink/core/widgets/custom_icon_button.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
@@ -16,15 +20,18 @@ import 'package:mymink/core/widgets/progress_hud.dart';
 
 import 'package:mymink/features/post/data/models/post_model.dart';
 import 'package:mymink/features/post/data/services/post_service.dart';
+import 'package:mymink/features/post/widgets/post_item.dart';
 import 'package:mymink/features/post/widgets/upload_progress_banner.dart';
 import 'package:mymink/features/post/widgets/post_bottom_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:mymink/features/post/widgets/post_list.dart';
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
+import 'package:mymink/features/post/widgets/weather_widget.dart';
 import 'package:mymink/features/weather/data/models/weather_model.dart';
 import 'package:mymink/features/weather/widgets/weather_report_sheet.dart';
 import 'package:mymink/gen/assets.gen.dart';
 import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
 
 class HomePage extends riverpod.ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -33,12 +40,14 @@ class HomePage extends riverpod.ConsumerStatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends riverpod.ConsumerState<HomePage> {
+class HomePageState extends riverpod.ConsumerState<HomePage>
+    with AutomaticKeepAliveClientMixin<HomePage> {
+  @override
+  bool get wantKeepAlive => true;
   final userModel = UserModel.instance;
   var _error = "No posts available";
   var _isLoading = false;
-  WeatherModel? _weather;
-  Timer? _weatherTimer;
+
   var _isFetching = false;
   List<PostModel> postModels = [];
   final int _pageSize = 10;
@@ -51,48 +60,9 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    _initLocationAndWeather();
+
     _scrollController.addListener(_scrollListener);
     loadInitialPosts(true);
-  }
-
-  Future<void> _initLocationAndWeather() async {
-    final perm = await Geolocator.requestPermission();
-
-    if (perm == LocationPermission.always ||
-        perm == LocationPermission.whileInUse) {
-      _fetchWeather();
-      _weatherTimer =
-          Timer.periodic(const Duration(minutes: 30), (_) => _fetchWeather());
-    }
-  }
-
-  Future<void> _fetchWeather() async {
-    try {
-      final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-      final String weatherApiKey = dotenv.env['WEATHER_API_KEY'] ?? '';
-      final geoReq = Uri.parse('https://api.openweathermap.org/geo/1.0/reverse'
-          '?lat=${pos.latitude}&lon=${pos.longitude}&limit=1&appid=${weatherApiKey}');
-      final geoResp = await http.get(geoReq);
-      final cityJson = json.decode(geoResp.body) as List<dynamic>;
-      final cityName =
-          cityJson.isNotEmpty ? cityJson[0]['name'] as String : null;
-
-      // onecall
-      final weatherReq =
-          Uri.parse('https://api.openweathermap.org/data/3.0/onecall'
-              '?lat=${pos.latitude}&lon=${pos.longitude}'
-              '&units=metric&exclude=minutely,hourly,daily'
-              '&appid=${weatherApiKey}');
-      final weatherResp = await http.get(weatherReq);
-      final w = weatherModelFromRawJson(weatherResp.body);
-      w.current?.city = cityName;
-      setState(() => _weather = w);
-    } catch (e) {}
   }
 
   void scrollToTop() {
@@ -119,6 +89,8 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
 
   // Pull-to-refresh callback
   Future<void> _refreshPosts() async {
+    await NotificationService.showLocalNotification(
+        id: 22221, title: 'Vaibhav', body: 'Sharma');
     // Reset the pagination state
     setState(() {
       _lastDocument = null;
@@ -146,6 +118,7 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
       if (result.data!.posts.length < _pageSize) {
         _hasMore = false;
       }
+
       setState(() {});
     } else {
       setState(() {
@@ -177,6 +150,7 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
       if (result.data!.posts.length < _pageSize) {
         _hasMore = false;
       }
+
       setState(() {});
     } else {
       print(result.error);
@@ -197,25 +171,7 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (_weather?.current?.temp != null)
-                    CustomIconButton(
-                      width: 44,
-                      icon: Text(
-                          '${_weather!.current!.temp!.toStringAsFixed(1)}°C',
-                          style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold)),
-                      onPressed: () =>
-                          // wherever you want to show it
-                          showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) =>
-                            WeatherDetailSheet(current: _weather!.current!),
-                      ),
-                    ),
+                  const WeatherWidget(),
                   const SizedBox(
                     width: 4,
                   ),
@@ -238,7 +194,9 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
                   CustomIconButton(
                       icon: Assets.images.messageWhite
                           .image(width: 20, height: 20),
-                      onPressed: () {}),
+                      onPressed: () {
+                        context.push(AppRoutes.inboxPage);
+                      }),
                   const SizedBox(
                     width: 4,
                   ),
@@ -353,6 +311,7 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     ref.listen<PostModel?>(PostService.newPostProvider, (previous, next) {
       if (next != null) {
         setState(() {
@@ -375,10 +334,31 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
             child: RefreshIndicator(
               key: _refreshIndicatorKey,
               onRefresh: _refreshPosts,
-              child: PostList(
+              child: CustomScrollView(
                 controller: _scrollController,
-                postModels: postModels,
-                header: getheader(),
+                slivers: [
+                  // 1. Your header
+                  SliverToBoxAdapter(child: getheader()),
+
+                  // 2. The list of posts
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        // while fetching, show a loader at the end
+                        if (index >= postModels.length) {
+                          return const Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+                        final post = postModels[index];
+                        return PostItem(
+                            key: ValueKey(post.postID), postModel: post);
+                      },
+                      childCount: postModels.length + (_isFetching ? 1 : 0),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -410,7 +390,6 @@ class HomePageState extends riverpod.ConsumerState<HomePage> {
 
   @override
   void dispose() {
-    _weatherTimer?.cancel();
     _scrollController.dispose();
     super.dispose();
   }

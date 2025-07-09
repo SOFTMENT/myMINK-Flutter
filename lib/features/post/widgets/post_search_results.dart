@@ -33,15 +33,19 @@ class PostSearchResults extends StatelessWidget {
       const QuiltedGridTile(2, 2),
       const QuiltedGridTile(1, 1),
       // Group 2: 6 small tiles (2 rows of 3)
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      // Group 3: big tile then two small tiles.
       const QuiltedGridTile(2, 2),
       const QuiltedGridTile(1, 1),
+
+      const QuiltedGridTile(1, 1),
+      // Group 3: big tile then two small tiles.
+
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(2, 2),
+      const QuiltedGridTile(1, 1),
+      // Group 2: 6 small tiles (2 rows of 3)
+      const QuiltedGridTile(2, 2),
+      const QuiltedGridTile(1, 1),
+
       const QuiltedGridTile(1, 1),
     ];
 
@@ -56,11 +60,17 @@ class PostSearchResults extends StatelessWidget {
       ),
       childrenDelegate: SliverChildBuilderDelegate(
         (context, index) {
+          final tile = pattern[index % pattern.length];
+          final isBigTile = tile.crossAxisCount == 2 && tile.mainAxisCount == 2;
+
           if (index == posts.length && isFetching) {
             return const Center(child: CircularProgressIndicator());
           }
           final post = posts[index];
-          return PostGridItem(post: post);
+          return PostGridItem(
+            post: post,
+            isBigTile: isBigTile,
+          );
         },
         childCount: posts.length + (isFetching ? 1 : 0),
       ),

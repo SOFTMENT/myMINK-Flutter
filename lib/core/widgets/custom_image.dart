@@ -7,37 +7,44 @@ class CustomImage extends StatelessWidget {
       {super.key,
       required this.imageKey,
       required this.width,
-      required this.height});
+      required this.height,
+      this.imageFullUrl = null,
+      this.boxFit = BoxFit.cover});
   final String? imageKey;
   final double width;
   final double height;
+  final BoxFit boxFit;
+  final String? imageFullUrl;
   @override
   Widget build(BuildContext context) {
-    return (imageKey == null || imageKey!.isEmpty)
+    return ((imageKey == null || imageKey!.isEmpty) &&
+            (imageFullUrl == null || imageFullUrl!.isEmpty))
         ? SizedBox(
             width: width,
             height: height,
             child: Image.asset(
               'assets/images/imageload.gif',
-              fit: BoxFit.cover,
+              fit: boxFit,
             ),
           )
         : CachedNetworkImage(
-            imageUrl: ImageService.generateImageUrl(
-              imagePath: imageKey!,
-              width: width.toInt(),
-              height: height.toInt(),
-            ),
+            imageUrl: imageFullUrl != null && imageFullUrl!.isNotEmpty
+                ? imageFullUrl!
+                : ImageService.generateImageUrl(
+                    imagePath: imageKey!,
+                    width: width.toInt(),
+                    height: height.toInt(),
+                  ),
             width: width,
             height: height,
-            fit: BoxFit.cover,
+            fit: boxFit,
             errorWidget: (context, url, error) {
               return SizedBox(
                 width: width,
                 height: height,
                 child: Image.asset(
                   'assets/images/imageload.gif',
-                  fit: BoxFit.cover,
+                  fit: boxFit,
                 ),
               );
             },
@@ -46,7 +53,7 @@ class CustomImage extends StatelessWidget {
               height: height,
               child: Image.asset(
                 'assets/images/imageload.gif',
-                fit: BoxFit.cover,
+                fit: boxFit,
               ),
             ),
           );

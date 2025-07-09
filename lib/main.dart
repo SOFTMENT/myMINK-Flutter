@@ -12,6 +12,10 @@ import 'package:mymink/firebase_options.dart';
 import 'package:mymink/routes/app_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'package:agora_call_kit/agora_call_kit.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -24,6 +28,11 @@ void main() async {
 
   await configureAmplify();
   await FlutterBranchSdk.init();
+
+  //Agora
+  CallkitInitializer.initialize(
+      agoraAppId: dotenv.env['AGORA_APP_ID'] ?? 'appid',
+      navigatorKey: navigatorKey);
 
   await SentryFlutter.init(
     (options) {

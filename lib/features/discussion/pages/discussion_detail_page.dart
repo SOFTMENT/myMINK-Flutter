@@ -103,7 +103,11 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
                 },
               ),
             ),
-            ReplyInputBar(replyController: _replyCtrl, postReply: _postReply),
+            ReplyInputBar(
+              replyController: _replyCtrl,
+              postReply: _postReply,
+              hint: 'Write a reply...',
+            ),
           ],
         ),
       ),

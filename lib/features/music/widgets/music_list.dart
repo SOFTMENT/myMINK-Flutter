@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mymink/core/constants/colors.dart';
+import 'package:mymink/core/widgets/custom_image.dart';
 import 'package:mymink/features/music/data/models/music_model.dart';
 
 class MusicListView extends StatelessWidget {
@@ -41,8 +43,15 @@ class MusicListView extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: thumb != null
-                      ? Image.network(thumb,
-                          width: 60, height: 60, fit: BoxFit.cover)
+                      ? SizedBox(
+                          height: 60,
+                          width: 60,
+                          child: CustomImage(
+                              imageKey: null,
+                              imageFullUrl: thumb,
+                              width: 80,
+                              height: 80),
+                        )
                       : Container(
                           width: 60,
                           height: 60,
@@ -85,10 +94,12 @@ class MusicListView extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.play_arrow),
-                  color: Colors.red,
-                  onPressed: () {},
+                const Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 2),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    color: AppColors.primaryRed,
+                  ),
                 ),
               ],
             ),

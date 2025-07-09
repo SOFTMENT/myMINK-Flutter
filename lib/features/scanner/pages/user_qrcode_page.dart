@@ -161,119 +161,115 @@ class _UserQrcodePageState extends State<UserQrcodePage> {
             ),
           ),
           const Spacer(),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _isLoading ? null : _shareProfileQRCode,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color:
-                                      const Color.fromARGB(255, 231, 231, 231)),
-                              height: 46,
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.ios_share_outlined,
-                                    color: AppColors.textBlack,
-                                    size: 18,
-                                  ),
-                                  SizedBox(
-                                    width: 4,
-                                  ),
-                                  const Text(
-                                    'Share Profile',
-                                    style: TextStyle(
-                                        color: AppColors.textBlack,
-                                        fontSize: 14),
-                                  ),
-                                ],
-                              ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 32, left: 25, right: 25),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _isLoading ? null : _shareProfileQRCode,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    const Color.fromARGB(255, 231, 231, 231)),
+                            height: 46,
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.ios_share_outlined,
+                                  color: AppColors.textBlack,
+                                  size: 18,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                const Text(
+                                  'Share Profile',
+                                  style: TextStyle(
+                                      color: AppColors.textBlack, fontSize: 14),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _isLoading ? null : _copyLink,
-                            child: Container(
-                              height: 46,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color:
-                                      const Color.fromARGB(255, 231, 231, 231)),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.content_copy_outlined,
-                                    color: AppColors.textBlack,
-                                    size: 18,
-                                  ),
-                                  SizedBox(
-                                    width: 4,
-                                  ),
-                                  const Text(
-                                    'Copy Link',
-                                    style: TextStyle(
-                                        color: AppColors.textBlack,
-                                        fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    GestureDetector(
-                      onTap: _isLoading ? null : _scanQr,
-                      child: Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: AppColors.textBlack),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.qr_code_scanner_outlined,
-                              color: AppColors.white,
-                              size: 18,
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            const Text(
-                              'Scan QR',
-                              style: TextStyle(
-                                  color: AppColors.white, fontSize: 14),
-                            ),
-                          ],
                         ),
                       ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _isLoading ? null : _copyLink,
+                          child: Container(
+                            height: 46,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    const Color.fromARGB(255, 231, 231, 231)),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.content_copy_outlined,
+                                  color: AppColors.textBlack,
+                                  size: 18,
+                                ),
+                                SizedBox(
+                                  width: 4,
+                                ),
+                                const Text(
+                                  'Copy Link',
+                                  style: TextStyle(
+                                      color: AppColors.textBlack, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: _isLoading ? null : _scanQr,
+                    child: Container(
+                      height: 46,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: AppColors.textBlack),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.qr_code_scanner_outlined,
+                            color: AppColors.white,
+                            size: 18,
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          const Text(
+                            'Scan QR',
+                            style:
+                                TextStyle(color: AppColors.white, fontSize: 14),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

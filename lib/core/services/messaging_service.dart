@@ -15,11 +15,4 @@ class MessagingService {
       return null;
     }
   }
-
-  // ✅ Listen to incoming messages
-  void listenToMessages() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Message received: ${message.notification?.title}');
-    });
-  }
 }

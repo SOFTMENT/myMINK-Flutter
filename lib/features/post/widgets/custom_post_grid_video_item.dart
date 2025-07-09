@@ -28,29 +28,26 @@ class _PostGridVideoItemState extends State<PostGridVideoItem>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    if (widget.post.postType == PostType.video.name &&
-        widget.post.postVideo != null) {
-      _initializeVideo();
-    }
+    loadVideo();
   }
 
-  void _initializeVideo() {
-    _videoService = VideoService();
-    final videoURL = ApiConstants.getFullVideoURL(widget.post.postVideo!);
+  void loadVideo() {
+    if (widget.post.postType == PostType.video.name &&
+        widget.post.postVideo != null) {
+      _videoService = VideoService()
+        ..videoUrl = ApiConstants.getFullVideoURL(widget.post.postVideo!);
 
-    _videoService!.loadVideo(videoURL).then((_) {
-      // At this point loadVideo() has finished (either _playVideo(...) or fallback).
-      final controller = _videoService!.videoPlayerController;
-      if (controller != null && controller.value.isInitialized) {
-        // It’s now safe to set volume and play:
-        controller.setVolume(0);
-        controller.play();
-        _videoService!.isPlaying = true;
-        setState(() {});
-      }
-      // If controller is still null or not initialized, do nothing; the
-      // placeholder image will remain.
-    });
+      _videoService!.loadVideo(_videoService!.videoUrl!).then((_) {
+        final c = _videoService!.videoPlayerController;
+        if (c != null && c.value.isInitialized) {
+          c.setVolume(0); // mute this instance only
+          c.play(); // start playing
+          _videoService!.isPlaying = true;
+          // no need to set MuteUnmute.isMuted
+          setState(() {});
+        }
+      });
+    }
   }
 
   @override
@@ -61,9 +58,7 @@ class _PostGridVideoItemState extends State<PostGridVideoItem>
       _videoService?.disposeVideo();
 
       _videoService = null;
-      if (widget.post.postType == PostType.video.name) {
-        _initializeVideo();
-      }
+      loadVideo();
     }
   }
 
@@ -112,32 +107,43 @@ class _PostGridVideoItemState extends State<PostGridVideoItem>
           borderRadius: BorderRadius.circular(8),
           child: GestureDetector(
             onTap: () {
-              // Toggle mute on tap, but always enforce mute.
               _videoService?.toggleMute();
               _videoService?.chewieController?.videoPlayerController
                   .setVolume(0);
             },
-            child: _videoService?.chewieController != null &&
-                    _videoService!.chewieController!.videoPlayerController.value
-                        .isInitialized
-                ? FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      // Use the video's natural size if available, else fallback dimensions.
-                      width: _videoService!.chewieController!
-                          .videoPlayerController.value.size.width,
-                      height: _videoService!.chewieController!
-                          .videoPlayerController.value.size.height,
-                      child: Chewie(
-                        controller: _videoService!.chewieController!,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Thumbnail always visible in background
+                CustomImage(
+                  imageKey: widget.post.videoImage,
+                  width: 150,
+                  height: 150,
+                ),
+
+                // Fade-in video when initialized
+                if (_videoService?.chewieController != null)
+                  AnimatedOpacity(
+                    opacity: _videoService!.chewieController!
+                            .videoPlayerController.value.isInitialized
+                        ? 1.0
+                        : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _videoService!.chewieController!
+                            .videoPlayerController.value.size.width,
+                        height: _videoService!.chewieController!
+                            .videoPlayerController.value.size.height,
+                        child: Chewie(
+                          controller: _videoService!.chewieController!,
+                        ),
                       ),
                     ),
-                  )
-                : CustomImage(
-                    imageKey: widget.post.videoImage,
-                    width: 200,
-                    height: 200,
                   ),
+              ],
+            ),
           ),
         ),
       ),

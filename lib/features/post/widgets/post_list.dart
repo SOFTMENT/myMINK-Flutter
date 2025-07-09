@@ -23,6 +23,7 @@ class _PostListState extends State<PostList> {
   Widget build(BuildContext context) {
     print(widget.postModels.length);
     return ListView.builder(
+      key: const PageStorageKey('home_posts_list'),
       controller: widget.controller,
       physics: const ClampingScrollPhysics(),
       shrinkWrap: true,

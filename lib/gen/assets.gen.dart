@@ -36,7 +36,8 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/1688784047-trimmy-Group 1000003572.png
   AssetGenImage get a1688784047TrimmyGroup1000003572 => const AssetGenImage(
-      'assets/images/1688784047-trimmy-Group 1000003572.png');
+    'assets/images/1688784047-trimmy-Group 1000003572.png',
+  );
 
   /// File path: assets/images/1689470707-trimmy-mic.png
   AssetGenImage get a1689470707TrimmyMic =>
@@ -48,19 +49,23 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/1690350077-trimmy-Group 1000005792.png
   AssetGenImage get a1690350077TrimmyGroup1000005792 => const AssetGenImage(
-      'assets/images/1690350077-trimmy-Group 1000005792.png');
+    'assets/images/1690350077-trimmy-Group 1000005792.png',
+  );
 
   /// File path: assets/images/1690869123-trimmy-Group 1000003474.png
   AssetGenImage get a1690869123TrimmyGroup1000003474 => const AssetGenImage(
-      'assets/images/1690869123-trimmy-Group 1000003474.png');
+    'assets/images/1690869123-trimmy-Group 1000003474.png',
+  );
 
   /// File path: assets/images/1699908930-trimmy-icons8-explicit-96-2.png
   AssetGenImage get a1699908930TrimmyIcons8Explicit962 => const AssetGenImage(
-      'assets/images/1699908930-trimmy-icons8-explicit-96-2.png');
+    'assets/images/1699908930-trimmy-icons8-explicit-96-2.png',
+  );
 
   /// File path: assets/images/1701073634-trimmy-Group 1000005795.png
   AssetGenImage get a1701073634TrimmyGroup1000005795 => const AssetGenImage(
-      'assets/images/1701073634-trimmy-Group 1000005795.png');
+    'assets/images/1701073634-trimmy-Group 1000005795.png',
+  );
 
   /// File path: assets/images/Atmospheric Pressure.png
   AssetGenImage get atmosphericPressure =>
@@ -83,7 +88,8 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/Grey and White Minimalist Twitter Header.jpg
   AssetGenImage get greyAndWhiteMinimalistTwitterHeader => const AssetGenImage(
-      'assets/images/Grey and White Minimalist Twitter Header.jpg');
+    'assets/images/Grey and White Minimalist Twitter Header.jpg',
+  );
 
   /// File path: assets/images/Group 1000003596.png
   AssetGenImage get group1000003596 =>
@@ -274,6 +280,9 @@ class $AssetsImagesGen {
   AssetGenImage get homeheaderbg =>
       const AssetGenImage('assets/images/homeheaderbg.png');
 
+  /// Directory path: assets/images/horoscope
+  $AssetsImagesHoroscopeGen get horoscope => const $AssetsImagesHoroscopeGen();
+
   /// File path: assets/images/icons8-calendar-48.png
   AssetGenImage get icons8Calendar48 =>
       const AssetGenImage('assets/images/icons8-calendar-48.png');
@@ -295,9 +304,10 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/kisspng-qr-code-barcode-2d-code-intel-image-scanner-qr-code-png-images-free-download-5cd6ceb46ecd37.8745960315575814924539.png
   AssetGenImage
-      get kisspngQrCodeBarcode2dCodeIntelImageScannerQrCodePngImagesFreeDownload5cd6ceb46ecd378745960315575814924539 =>
-          const AssetGenImage(
-              'assets/images/kisspng-qr-code-barcode-2d-code-intel-image-scanner-qr-code-png-images-free-download-5cd6ceb46ecd37.8745960315575814924539.png');
+  get kisspngQrCodeBarcode2dCodeIntelImageScannerQrCodePngImagesFreeDownload5cd6ceb46ecd378745960315575814924539 =>
+      const AssetGenImage(
+        'assets/images/kisspng-qr-code-barcode-2d-code-intel-image-scanner-qr-code-png-images-free-download-5cd6ceb46ecd37.8745960315575814924539.png',
+      );
 
   /// File path: assets/images/linkedin.png
   AssetGenImage get linkedin =>
@@ -395,7 +405,8 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/record-button-3_2-removebg-preview.png
   AssetGenImage get recordButton32RemovebgPreview => const AssetGenImage(
-      'assets/images/record-button-3_2-removebg-preview.png');
+    'assets/images/record-button-3_2-removebg-preview.png',
+  );
 
   /// File path: assets/images/reddit.png
   AssetGenImage get reddit => const AssetGenImage('assets/images/reddit.png');
@@ -456,10 +467,6 @@ class $AssetsImagesGen {
   /// File path: assets/images/signature-7.png
   AssetGenImage get signature7 =>
       const AssetGenImage('assets/images/signature-7.png');
-
-  /// File path: assets/images/signature.png
-  AssetGenImage get signature =>
-      const AssetGenImage('assets/images/signature.png');
 
   /// File path: assets/images/smiling-face.png
   AssetGenImage get smilingFace =>
@@ -537,6 +544,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/video1F.png
   AssetGenImage get video1F => const AssetGenImage('assets/images/video1F.png');
 
+  /// File path: assets/images/videocall.png
+  AssetGenImage get videocall =>
+      const AssetGenImage('assets/images/videocall.png');
+
   /// File path: assets/images/view.png
   AssetGenImage get view => const AssetGenImage('assets/images/view.png');
 
@@ -559,156 +570,229 @@ class $AssetsImagesGen {
 
   /// List of all assets
   List<dynamic> get values => [
-        a1688784047TrimmyGroup1000003572,
-        a1689470707TrimmyMic,
-        a1689470707TrimmySwitchcamera,
-        a1690350077TrimmyGroup1000005792,
-        a1690869123TrimmyGroup1000003474,
-        a1699908930TrimmyIcons8Explicit962,
-        a1701073634TrimmyGroup1000005795,
-        atmosphericPressure,
-        certificate,
-        dewPoint,
-        eye,
-        frame10000035542,
-        greyAndWhiteMinimalistTwitterHeader,
-        group1000003596,
-        group1000005769,
-        group1000005771,
-        group1000007771,
-        home1F,
-        img6e604b8b6e591,
-        moisture,
-        payPalLogoWine,
-        sunlight,
-        wind,
-        addWhite,
-        addreel,
-        applePay,
-        appleIcon,
-        arroba,
-        bookmarkFill,
-        bookmark,
-        bot,
-        brush2,
-        building,
-        businessAndTrade,
-        calendar6,
-        camera,
-        camera1F,
-        camera2F,
-        chat3,
-        clock,
-        colorfuldesign,
-        copy,
-        creditCard,
-        crown21,
-        dictionary,
-        discord,
-        dollar2,
-        dots2,
-        downArrow,
-        editing1,
-        em1688517695TrimmyBack,
-        em1688517721TrimmyDots,
-        email6,
-        etsy,
-        facebook,
-        filter3,
-        filter1,
-        gallery,
-        goldminklogoRemovebgPreview,
-        google8,
-        happy5,
-        happy,
-        hide,
-        home2F,
-        homebg,
-        homeheaderbg,
-        icons8Calendar48,
-        icons8Location96,
-        image2,
-        imageload,
-        instagram,
-        kisspngQrCodeBarcode2dCodeIntelImageScannerQrCodePngImagesFreeDownload5cd6ceb46ecd378745960315575814924539,
-        linkedin,
-        list,
-        live,
-        location7,
-        logo,
-        logout,
-        loupe2,
-        mPlaceholder,
-        magnifyingGlass5,
-        mastodon,
-        message2,
-        messageWhite,
-        mobilePhone,
-        money2,
-        more6,
-        notification1F,
-        notification2F,
-        notificationWhite,
-        outputOnlinepngtools,
-        padlock5,
-        phone,
-        pintrest,
-        placeholder,
-        playimage,
-        qrCode,
-        quote,
-        recordButton32RemovebgPreview,
-        reddit,
-        reelcomment,
-        reelfav,
-        reelshare,
-        reelunfav,
-        roundicon2,
-        rumble,
-        saveFill,
-        save,
-        schedule23x,
-        send3x,
-        settingsbutton2,
-        share7,
-        shop4,
-        signalStream,
-        signal,
-        signature7,
-        signature,
-        smilingFace,
-        snapchat,
-        speakeroff,
-        stream,
-        sun,
-        tablerScan,
-        telegram,
-        tickets23x,
-        tiktok,
-        tumblr,
-        twitch,
-        twitter,
-        unhappy,
-        user24,
-        user26,
-        user1F,
-        user2F,
-        verification,
-        verified,
-        videoPlayWhite,
-        videoPlay,
-        video1F,
-        view,
-        wallet,
-        watchcounticon,
-        wave,
-        whatsapp,
-        youtube
-      ];
+    a1688784047TrimmyGroup1000003572,
+    a1689470707TrimmyMic,
+    a1689470707TrimmySwitchcamera,
+    a1690350077TrimmyGroup1000005792,
+    a1690869123TrimmyGroup1000003474,
+    a1699908930TrimmyIcons8Explicit962,
+    a1701073634TrimmyGroup1000005795,
+    atmosphericPressure,
+    certificate,
+    dewPoint,
+    eye,
+    frame10000035542,
+    greyAndWhiteMinimalistTwitterHeader,
+    group1000003596,
+    group1000005769,
+    group1000005771,
+    group1000007771,
+    home1F,
+    img6e604b8b6e591,
+    moisture,
+    payPalLogoWine,
+    sunlight,
+    wind,
+    addWhite,
+    addreel,
+    applePay,
+    appleIcon,
+    arroba,
+    bookmarkFill,
+    bookmark,
+    bot,
+    brush2,
+    building,
+    businessAndTrade,
+    calendar6,
+    camera,
+    camera1F,
+    camera2F,
+    chat3,
+    clock,
+    colorfuldesign,
+    copy,
+    creditCard,
+    crown21,
+    dictionary,
+    discord,
+    dollar2,
+    dots2,
+    downArrow,
+    editing1,
+    em1688517695TrimmyBack,
+    em1688517721TrimmyDots,
+    email6,
+    etsy,
+    facebook,
+    filter3,
+    filter1,
+    gallery,
+    goldminklogoRemovebgPreview,
+    google8,
+    happy5,
+    happy,
+    hide,
+    home2F,
+    homebg,
+    homeheaderbg,
+    icons8Calendar48,
+    icons8Location96,
+    image2,
+    imageload,
+    instagram,
+    kisspngQrCodeBarcode2dCodeIntelImageScannerQrCodePngImagesFreeDownload5cd6ceb46ecd378745960315575814924539,
+    linkedin,
+    list,
+    live,
+    location7,
+    logo,
+    logout,
+    loupe2,
+    mPlaceholder,
+    magnifyingGlass5,
+    mastodon,
+    message2,
+    messageWhite,
+    mobilePhone,
+    money2,
+    more6,
+    notification1F,
+    notification2F,
+    notificationWhite,
+    outputOnlinepngtools,
+    padlock5,
+    phone,
+    pintrest,
+    placeholder,
+    playimage,
+    qrCode,
+    quote,
+    recordButton32RemovebgPreview,
+    reddit,
+    reelcomment,
+    reelfav,
+    reelshare,
+    reelunfav,
+    roundicon2,
+    rumble,
+    saveFill,
+    save,
+    schedule23x,
+    send3x,
+    settingsbutton2,
+    share7,
+    shop4,
+    signalStream,
+    signal,
+    signature7,
+    smilingFace,
+    snapchat,
+    speakeroff,
+    stream,
+    sun,
+    tablerScan,
+    telegram,
+    tickets23x,
+    tiktok,
+    tumblr,
+    twitch,
+    twitter,
+    unhappy,
+    user24,
+    user26,
+    user1F,
+    user2F,
+    verification,
+    verified,
+    videoPlayWhite,
+    videoPlay,
+    video1F,
+    videocall,
+    view,
+    wallet,
+    watchcounticon,
+    wave,
+    whatsapp,
+    youtube,
+  ];
+}
+
+class $AssetsImagesHoroscopeGen {
+  const $AssetsImagesHoroscopeGen();
+
+  /// File path: assets/images/horoscope/aquarius.png
+  AssetGenImage get aquarius =>
+      const AssetGenImage('assets/images/horoscope/aquarius.png');
+
+  /// File path: assets/images/horoscope/aries.png
+  AssetGenImage get aries =>
+      const AssetGenImage('assets/images/horoscope/aries.png');
+
+  /// File path: assets/images/horoscope/astrology.png
+  AssetGenImage get astrology =>
+      const AssetGenImage('assets/images/horoscope/astrology.png');
+
+  /// File path: assets/images/horoscope/cancer.png
+  AssetGenImage get cancer =>
+      const AssetGenImage('assets/images/horoscope/cancer.png');
+
+  /// File path: assets/images/horoscope/capricornus.png
+  AssetGenImage get capricornus =>
+      const AssetGenImage('assets/images/horoscope/capricornus.png');
+
+  /// File path: assets/images/horoscope/gemini.png
+  AssetGenImage get gemini =>
+      const AssetGenImage('assets/images/horoscope/gemini.png');
+
+  /// File path: assets/images/horoscope/leo.png
+  AssetGenImage get leo =>
+      const AssetGenImage('assets/images/horoscope/leo.png');
+
+  /// File path: assets/images/horoscope/libra.png
+  AssetGenImage get libra =>
+      const AssetGenImage('assets/images/horoscope/libra.png');
+
+  /// File path: assets/images/horoscope/pisces.png
+  AssetGenImage get pisces =>
+      const AssetGenImage('assets/images/horoscope/pisces.png');
+
+  /// File path: assets/images/horoscope/sagitarius.png
+  AssetGenImage get sagitarius =>
+      const AssetGenImage('assets/images/horoscope/sagitarius.png');
+
+  /// File path: assets/images/horoscope/scorpio.png
+  AssetGenImage get scorpio =>
+      const AssetGenImage('assets/images/horoscope/scorpio.png');
+
+  /// File path: assets/images/horoscope/taurus.png
+  AssetGenImage get taurus =>
+      const AssetGenImage('assets/images/horoscope/taurus.png');
+
+  /// File path: assets/images/horoscope/virgo.png
+  AssetGenImage get virgo =>
+      const AssetGenImage('assets/images/horoscope/virgo.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [
+    aquarius,
+    aries,
+    astrology,
+    cancer,
+    capricornus,
+    gemini,
+    leo,
+    libra,
+    pisces,
+    sagitarius,
+    scorpio,
+    taurus,
+    virgo,
+  ];
 }
 
 class Assets {
-  Assets._();
+  const Assets._();
 
   static const String aEnv = '.env';
   static const $AssetsAnimationsGen animations = $AssetsAnimationsGen();
@@ -719,11 +803,7 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-  });
+  const AssetGenImage(this._assetName, {this.size, this.flavors = const {}});
 
   final String _assetName;
 
@@ -751,7 +831,7 @@ class AssetGenImage {
     bool gaplessPlayback = true,
     bool isAntiAlias = false,
     String? package,
-    FilterQuality filterQuality = FilterQuality.low,
+    FilterQuality filterQuality = FilterQuality.medium,
     int? cacheWidth,
     int? cacheHeight,
   }) {
@@ -783,15 +863,8 @@ class AssetGenImage {
     );
   }
 
-  ImageProvider provider({
-    AssetBundle? bundle,
-    String? package,
-  }) {
-    return AssetImage(
-      _assetName,
-      bundle: bundle,
-      package: package,
-    );
+  ImageProvider provider({AssetBundle? bundle, String? package}) {
+    return AssetImage(_assetName, bundle: bundle, package: package);
   }
 
   String get path => _assetName;

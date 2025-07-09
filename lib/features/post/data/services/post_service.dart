@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart'; // ✅ This provides `compute`
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mymink/core/constants/api_constants.dart';
 import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/services/aws_uploader.dart';
 import 'package:mymink/core/services/deep_link_service.dart';
 import 'package:mymink/core/services/image_service.dart';
+import 'package:mymink/core/services/video_service.dart';
 import 'package:mymink/core/utils/result.dart';
 import 'package:mymink/core/widgets/custom_dialog.dart';
 import 'package:mymink/features/post/data/models/paginated_posts_result.dart';
@@ -260,6 +262,14 @@ class PostService {
         // Convert each document to a PostModel
         final posts = await Future.wait(snapshot.docs.map((doc) async {
           final post = PostModel.fromJson(doc.data());
+
+          if (post.postType == PostType.video.name &&
+              post.postVideo != null &&
+              post.postVideo!.isNotEmpty) {
+            VideoService().downloadVideoInCache(
+                ApiConstants.getFullVideoURL(post.postVideo!));
+          }
+
           // Optionally, fetch the UserModel for this post
           if (post.uid != null && post.uid!.isNotEmpty) {
             try {

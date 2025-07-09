@@ -49,7 +49,7 @@ dependencies:
   http: ^1.2.2
   provider: ^6.1.2
   flutter_dotenv: ^5.2.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   encrypt: ^5.0.3
   crypto: ^3.0.6
   shared_preferences: ^2.3.5
@@ -96,6 +96,8 @@ dependencies:
   geolocator: ^14.0.1
   qr_flutter: ^4.1.0
   ffmpeg_kit_flutter_new: ^1.6.1
+  agora_call_kit:
+    path: ../agora_call_kit
 
 dependency_overrides:
   web: ^0.5.0

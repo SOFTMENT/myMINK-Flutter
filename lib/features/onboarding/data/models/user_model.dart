@@ -27,7 +27,6 @@ class UserModel {
   String? biography;
   String? username;
   String? notificationToken;
-  String? deviceToken;
   String? encryptKey;
   String? encryptPassword;
   String? autoGraphImage;
@@ -62,7 +61,6 @@ class UserModel {
     this.biography,
     this.username,
     this.notificationToken,
-    this.deviceToken,
     this.encryptKey,
     this.encryptPassword,
     this.autoGraphImage,
@@ -100,7 +98,6 @@ class UserModel {
       biography: json['biography'],
       username: json['username'],
       notificationToken: json['notificationToken'],
-      deviceToken: json['deviceToken'],
       encryptKey: json['encryptKey'],
       encryptPassword: json['encryptPassword'],
       autoGraphImage: json['autoGraphImage'],
@@ -138,7 +135,6 @@ class UserModel {
       'biography': biography,
       'username': username,
       'notificationToken': notificationToken,
-      'deviceToken': deviceToken,
       'encryptKey': encryptKey,
       'encryptPassword': encryptPassword,
       'autoGraphImage': autoGraphImage,

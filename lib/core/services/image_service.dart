@@ -221,8 +221,8 @@ class ImageService {
       imageFormat: ImageFormat.JPEG,
       maxHeight:
           600, // specify the height of the thumbnail (the width is auto-scaled)
-      quality: 80,
-      timeMs: 4000,
+      quality: 70,
+      timeMs: 600,
     );
     return uint8list;
   }

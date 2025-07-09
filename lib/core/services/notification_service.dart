@@ -1,6 +1,9 @@
+import 'package:agora_call_kit/agora_call_kit.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:mymink/features/onboarding/data/models/user_model.dart';
 
 class NotificationService {
   static final _local = FlutterLocalNotificationsPlugin();
@@ -8,91 +11,32 @@ class NotificationService {
   static Future<void> requestNotificationPermission() async {
     final messaging = FirebaseMessaging.instance;
 
-    NotificationSettings settings = await messaging.requestPermission(
+    await messaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('✅ Notification permission granted');
-    } else if (settings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('⚠️ Provisional permission granted');
-    } else {
-      print('❌ Notification permission denied');
-    }
+    // 👇 (For Android 14+ full screen call intent permission)
+    await CallKitService.requestFullIntentPermission();
   }
 
-  static Future<void> _showLocalNotification({
-    required int id,
-    String? title,
-    String? body,
-    String? payload,
-  }) =>
-      _local.show(
-        id,
-        title,
-        body,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'high_importance',
-            'High Importance Notifications',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: payload,
-      );
-
-  /// Must be a top‐level or static function
-  static Future<void> _firebaseBackgroundHandler(RemoteMessage msg) async {
-    await Firebase.initializeApp();
-    final notif = msg.notification;
-    if (notif != null) {
-      await _showLocalNotification(
-        id: notif.hashCode,
-        title: notif.title,
-        body: notif.body,
-        payload: msg.data['someKey'],
-      );
-    }
-  }
-
-  static void registerMessageHandlers() {
-    // Foreground
-    FirebaseMessaging.onMessage.listen((msg) {
-      final notif = msg.notification;
-      if (notif != null) {
-        _showLocalNotification(
-          id: notif.hashCode,
-          title: notif.title,
-          body: notif.body,
-          payload: msg.data['someKey'],
-        );
-      }
-    });
-
-    // App opened from notification
-    FirebaseMessaging.onMessageOpenedApp.listen((msg) {
-      // navigate or handle deep link
-    });
-  }
-
-  /// Call once in main() after Firebase.initializeApp()
-  static Future<void> init() async {
-    // 1️⃣ Initialize flutter_local_notifications
-    const androidSettings =
+  static Future<void> initializeNotifications() async {
+    const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings();
+
+    final DarwinInitializationSettings iosSettings =
+        const DarwinInitializationSettings();
+
+    final InitializationSettings settings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
     await _local.initialize(
-      const InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      ),
-      onDidReceiveNotificationResponse: (resp) {
-        // handle tapped notification
+      settings,
+      onDidReceiveNotificationResponse: (details) {
+        // handle payload if needed
       },
     );
 
@@ -106,6 +50,62 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
+  }
+
+  static Future<void> showLocalNotification({
+    required int id,
+    String? title,
+    String? body,
+    String? payload,
+  }) async {
+    print(title);
+    print(body);
+    print(payload);
+
+    await _local.show(
+      id,
+      title ?? 'No Title',
+      body ?? 'No Body',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'high_importance',
+          'High Importance Notifications',
+          channelDescription:
+              'This channel is used for important notifications.',
+          importance: Importance.high,
+          priority: Priority.high,
+          ticker: 'ticker',
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      payload: payload,
+    );
+  }
+
+  /// Must be a top‐level or static function
+  static Future<void> _firebaseBackgroundHandler(RemoteMessage msg) async {
+    await Firebase.initializeApp();
+    final notif = msg.notification;
+    if (notif != null) {
+      await showLocalNotification(
+        id: notif.hashCode,
+        title: notif.title,
+        body: notif.body,
+        payload: msg.data['someKey'],
+      );
+    }
+  }
+
+  static void registerMessageHandlers() {
+    // App opened from notification
+    FirebaseMessaging.onMessageOpenedApp.listen((msg) {
+      // navigate or handle deep link
+    });
+  }
+
+  /// Call once in main() after Firebase.initializeApp()
+  static Future<void> init() async {
+    await initializeNotifications();
 
     // 3️⃣ Hook FCM background handler
     FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);
@@ -114,5 +114,73 @@ class NotificationService {
     FirebaseMessaging.instance.onTokenRefresh.listen((token) {
       // send this new token to your backend / Firestore
     });
+
+    FirebaseMessaging.onMessage.listen((message) {
+      final data = message.data;
+
+      if (data['notificationtype'] == 'incoming_call') {
+        showIncomingCall(data);
+      } else {
+        final notif = message.notification;
+        if (notif != null) {
+          showLocalNotification(
+            id: notif.hashCode,
+            title: notif.title,
+            body: notif.body,
+          );
+        }
+      }
+    });
+  }
+
+  @pragma('vm:entry-point')
+  Future<void> _firebaseMessagingBackgroundHandler(
+      RemoteMessage message) async {
+    await Firebase.initializeApp();
+    final data = message.data;
+
+    showIncomingCall(data);
+  }
+
+  static showIncomingCall(Map<String, dynamic> data) {
+    final callerName = data['nameCaller'] ?? "Unknown";
+    final callerId = data['id'] ?? "123";
+    final agoraToken = data['agoraToken'] ?? "123";
+    final channelName = data['channelName'] ?? 'channel';
+
+    if (data['notificationtype'] == 'incoming_call') {
+      CallKitService.showIncomingCall(
+          callerName: callerName,
+          callerId: callerId,
+          token: agoraToken,
+          channelName: channelName);
+    }
+  }
+
+  static Future<void> sendCallNotification({
+    required String fcmToken,
+    required String agoraToken,
+    required String channelName,
+    required String callerName,
+    required String callId,
+  }) async {
+    try {
+      final HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('sendUnifiedNotification');
+
+      final response = await callable.call({
+        'fcmToken': fcmToken,
+        'agoraToken': agoraToken,
+        'channelName': channelName,
+        'callerName': callerName,
+        'callId': callId,
+      });
+
+      print('✅ Notification sent: ${response.data}');
+    } on FirebaseFunctionsException catch (e) {
+      print('❌ FirebaseFunctionsException: ${e.message}');
+    } catch (e) {
+      print('❌ Error: $e');
+    }
   }
 }

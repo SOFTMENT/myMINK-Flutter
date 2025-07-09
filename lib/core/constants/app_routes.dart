@@ -32,4 +32,7 @@ class AppRoutes {
   static const String discussionDetailPage = '/discussionDetailPage';
   static const String libraryAtoZPage = '/libraryAtoZPage';
   static const String userQrcodePage = '/userQrCodePage';
+  static const String inboxPage = '/inboxPage';
+  static const String showInboxChatPage = '/showInboxChatPage';
+  static const String videoCallPage = '/videoCallPage';
 }

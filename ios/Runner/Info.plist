@@ -76,6 +76,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>voip</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -96,3 +97,6 @@
 	<string>key_live_mvjwRwp6cXVIpIJM7FOBhjclxsjNUZWv</string>
 </dict>
 </plist>
+
+
+My info.plist

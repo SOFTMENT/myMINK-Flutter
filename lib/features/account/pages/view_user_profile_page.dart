@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/utils/date_formatter.dart';
 import 'package:mymink/core/widgets/custom_button.dart';
@@ -107,7 +108,13 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
                             child: CustomButton(
                                 height: 50,
                                 text: 'Chat',
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.push(AppRoutes.showInboxChatPage,
+                                      extra: {
+                                        'current': UserModel.instance,
+                                        'friend': widget.userModel
+                                      });
+                                },
                                 backgroundColor: AppColors.textBlack),
                           ),
                           const SizedBox(

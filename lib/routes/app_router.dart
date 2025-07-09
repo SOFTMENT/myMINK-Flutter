@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:agora_call_kit/agora_call_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mymink/core/constants/app_routes.dart';
@@ -18,6 +19,8 @@ import 'package:mymink/features/discussion/pages/discussion_home_page.dart';
 import 'package:mymink/features/globalchat/pages/global_chat_page.dart';
 import 'package:mymink/features/horoscope/pages/daily_horoscope_page.dart';
 import 'package:mymink/features/horoscope/pages/horoscope_view_page.dart';
+import 'package:mymink/features/inbox/pages/inbox_page.dart';
+import 'package:mymink/features/inbox/pages/show_inbox_chat_page.dart';
 import 'package:mymink/features/library/pages/book_home_page.dart';
 import 'package:mymink/features/library/pages/library_a_to_z_page.dart';
 import 'package:mymink/features/music/data/models/music_model.dart';
@@ -41,8 +44,10 @@ import 'package:mymink/features/onboarding/pages/welcome_page.dart';
 import 'package:mymink/features/scanner/pages/user_qrcode_page.dart';
 import 'package:mymink/features/todo/pages/todo_addUpdate_page.dart';
 import 'package:mymink/features/todo/pages/todo_home_page.dart';
+import 'package:mymink/main.dart';
 
 final GoRouter appRouter = GoRouter(
+  navigatorKey: navigatorKey,
   routes: [
     GoRoute(
       path: AppRoutes.welcome,
@@ -62,7 +67,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.userQrcodePage,
-      builder: (context, state) => UserQrcodePage(),
+      builder: (context, state) => const UserQrcodePage(),
     ),
     GoRoute(
       path: AppRoutes.entry,
@@ -75,6 +80,35 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.signup,
       builder: (context, state) => SignUpPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.inboxPage,
+      builder: (context, state) => const InboxPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.showInboxChatPage,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        final current = data['current'] as UserModel;
+        final friend = data['friend'] as UserModel;
+
+        return ShowInboxChatPage(friend: friend, currentUser: current);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.videoCallPage,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        final channelName = data['channelName'] as String;
+        final token = data['token'] as String;
+        final isCaller = data['isCaller'] as bool;
+
+        return VideoCallPage(
+          channelName: channelName,
+          token: token,
+          isCaller: isCaller,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.complete_profile,

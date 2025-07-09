@@ -4,9 +4,14 @@ import 'package:mymink/core/constants/colors.dart';
 
 class CustomAppBar extends StatelessWidget {
   final String title;
+  final Widget? leadingWidget;
   final GestureDetector? gestureDetector;
 
-  CustomAppBar({super.key, required this.title, this.gestureDetector = null});
+  CustomAppBar(
+      {super.key,
+      required this.title,
+      this.leadingWidget = null,
+      this.gestureDetector = null});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,22 +45,29 @@ class CustomAppBar extends StatelessWidget {
                       child: const Icon(Icons.arrow_back_outlined, size: 18),
                     ),
                   ),
-
-                  // 2. Spacer + centered title + spacer
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textBlack,
-                        ),
-                      ),
+                  if (leadingWidget != null)
+                    const SizedBox(
+                      width: 16,
                     ),
-                  ),
 
+                  leadingWidget != null
+                      ? leadingWidget!
+                      :
+                      // 2. Spacer + centered title + spacer
+                      Expanded(
+                          child: Center(
+                            child: Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textBlack,
+                              ),
+                            ),
+                          ),
+                        ),
+                  const Spacer(),
                   // 3. Trailing area (either your supplied widget or an empty box)
                   SizedBox(
                     width: 44, // same width as back‐button’s container

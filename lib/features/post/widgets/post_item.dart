@@ -38,14 +38,9 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     if (widget.postModel.postType == PostType.video.name) {
-      _initializeVideo();
+      _videoService = VideoService()
+        ..videoUrl = ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
     }
-  }
-
-  void _initializeVideo() {
-    _videoService = VideoService();
-    final videoURL = ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
-    _videoService!.loadVideo(videoURL);
   }
 
   void _viewUserProfile(UserModel? userModel) {
@@ -60,12 +55,15 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
   void didUpdateWidget(covariant PostItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.postModel.postVideo != oldWidget.postModel.postVideo) {
-      // Dispose of the current video service before re-initializing.
+      // Tear down the old service completely.
       _videoService?.disposeVideo();
       _videoService?.dispose();
-      _videoService = null;
+
+      // Create a new one, but only assign its URL—no loading yet.
       if (widget.postModel.postType == PostType.video.name) {
-        _initializeVideo();
+        _videoService = VideoService()
+          ..videoUrl =
+              ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
       }
     }
   }
@@ -219,21 +217,35 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
                                 child: AspectRatio(
                                   aspectRatio:
                                       widget.postModel.postVideoRatio ?? 0.5,
-                                  child: videoService.chewieController !=
-                                              null &&
-                                          videoService
-                                              .chewieController!
-                                              .videoPlayerController
-                                              .value
-                                              .isInitialized
-                                      ? Chewie(
-                                          controller:
-                                              videoService.chewieController!,
-                                        )
-                                      : Image.asset(
-                                          'assets/images/imageload.gif',
-                                          fit: BoxFit.cover,
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      // Thumbnail always shown in background
+                                      CustomImage(
+                                        imageKey: widget.postModel.videoImage,
+                                        width: 300,
+                                        height: 300,
+                                      ),
+
+                                      // Video only visible once initialized
+                                      if (videoService.chewieController != null)
+                                        AnimatedOpacity(
+                                          opacity: videoService
+                                                  .chewieController!
+                                                  .videoPlayerController
+                                                  .value
+                                                  .isInitialized
+                                              ? 1.0
+                                              : 0.0,
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          child: Chewie(
+                                            controller:
+                                                videoService.chewieController!,
+                                          ),
                                         ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               Padding(

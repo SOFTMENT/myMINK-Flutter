@@ -6,7 +6,6 @@ import 'package:mymink/core/services/notification_service.dart';
 
 import 'package:mymink/features/account/pages/profile_page.dart';
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
-import 'package:mymink/features/onboarding/data/services/auth_service.dart';
 import 'package:mymink/features/onboarding/data/services/user_service.dart';
 import 'package:mymink/features/post/pages/home_page.dart';
 
@@ -32,7 +31,6 @@ class _MainTabBarState extends State<MainTabBar> {
     super.initState();
 
     _initializeNotification();
-
     _updateNotificationsToken();
 
     _pages = [
@@ -47,27 +45,19 @@ class _MainTabBarState extends State<MainTabBar> {
   }
 
   void _initializeNotification() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isFirstMain = prefs.getBool('isFirstMain') ?? true;
+    await NotificationService.requestNotificationPermission();
 
-    if (isFirstMain) {
-      if (isFirstMain) {
-        await NotificationService.requestNotificationPermission();
+    NotificationService.registerMessageHandlers();
 
-        NotificationService.registerMessageHandlers();
+    // OPTIONAL: Store token in Firestore under logged-in user
+    FirebaseMessaging.instance.getToken().then((fcmToken) {
+      if (fcmToken != null) {
+        final userModel = UserModel.instance;
 
-        // OPTIONAL: Store token in Firestore under logged-in user
-        FirebaseMessaging.instance.getToken().then((fcmToken) {
-          if (fcmToken != null) {
-            final userModel = UserModel.instance;
-            userModel.notificationToken = fcmToken;
-            UserService.updateUser(userModel);
-          }
-        });
+        userModel.notificationToken = fcmToken;
+        UserService.updateUser(userModel);
       }
-
-      await prefs.setBool('isFirstMain', false);
-    }
+    });
   }
 
   void _updateNotificationsToken() async {

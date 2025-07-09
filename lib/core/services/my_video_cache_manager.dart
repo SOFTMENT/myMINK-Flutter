@@ -12,11 +12,8 @@ class MyVideoCacheManager extends CacheManager {
 
   MyVideoCacheManager._()
       : super(
-          Config(
-            key,
-            stalePeriod: const Duration(days: 7),
-            maxNrOfCacheObjects: 12,
-          ),
+          Config(key,
+              stalePeriod: const Duration(days: 7), maxNrOfCacheObjects: 200),
         );
 
   // Define your custom getFilePath if needed without the override annotation.

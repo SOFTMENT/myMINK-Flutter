@@ -1,23 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mymink/core/constants/api_constants.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/services/aws_uploader.dart';
+import 'package:mymink/core/services/my_video_cache_manager.dart';
 import 'package:mymink/core/widgets/custom_icon_button.dart';
 import 'package:mymink/core/widgets/progress_hud.dart';
 import 'package:mymink/features/post/data/models/post_model.dart';
 import 'package:mymink/features/post/data/services/post_service.dart';
+import 'package:mymink/features/post/widgets/reel_item.dart';
 
 import 'package:mymink/features/post/widgets/reel_list.dart';
 import 'package:mymink/gen/assets.gen.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class ReelPage extends ConsumerStatefulWidget {
   @override
   _ReelPageState createState() => _ReelPageState();
 }
 
-class _ReelPageState extends ConsumerState<ReelPage> {
+class _ReelPageState extends ConsumerState<ReelPage>
+    with AutomaticKeepAliveClientMixin<ReelPage> {
+  @override
+  bool get wantKeepAlive => true;
   List<PostModel> reelPosts = [];
+  final ScrollController _scrollController = ScrollController();
   DocumentSnapshot? _lastDocument;
   bool _hasMore = true;
   bool _isLoading = false;
@@ -26,7 +34,12 @@ class _ReelPageState extends ConsumerState<ReelPage> {
   @override
   void initState() {
     super.initState();
+
     loadInitialReelPosts(true);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      VisibilityDetectorController.instance.notifyNow();
+    });
   }
 
   Future<void> loadInitialReelPosts(bool shouldShowLoader) async {
@@ -45,6 +58,7 @@ class _ReelPageState extends ConsumerState<ReelPage> {
       reelPosts.addAll(result.data!.posts);
       _lastDocument = result.data!.lastDocument;
       if (result.data!.posts.length < 10) _hasMore = false;
+
       setState(() {});
     } else {
       setState(() {
@@ -61,6 +75,7 @@ class _ReelPageState extends ConsumerState<ReelPage> {
       reelPosts.addAll(result.data!.posts);
       _lastDocument = result.data!.lastDocument;
       if (result.data!.posts.length < 10) _hasMore = false;
+
       setState(() {});
     } else {
       // handle error if needed
@@ -77,6 +92,8 @@ class _ReelPageState extends ConsumerState<ReelPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     ref.listen<PostModel?>(PostService.newPostProvider, (previous, next) {
       if (next != null && next.postType == PostType.video) {
         setState(() {
@@ -89,14 +106,39 @@ class _ReelPageState extends ConsumerState<ReelPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
+          // 1) Replace your RefreshIndicator child:
           RefreshIndicator(
             onRefresh: _refreshReelPosts,
-            child: ReelList(
-              pageController: _pageController,
-              postModels: reelPosts,
-              loadMoreReelPosts: loadMoreReelPosts,
+            child: CustomScrollView(
+              controller: _scrollController, // <-- use a ScrollController
+              physics: const PageScrollPhysics(),
+              slivers: [
+                // (Optional) a header sliver goes here:
+                // SliverToBoxAdapter(child: getYourHeader()),
+
+                // 2) SliverFillViewport gives you full‐screen pages, one at a time:
+                SliverFillViewport(
+                  viewportFraction: 1.0,
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      // When you hit the “extra” slot at the end, trigger load-more:
+                      if (index >= reelPosts.length) {
+                        if (_hasMore) loadMoreReelPosts();
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      // Otherwise build your reel item:
+                      return ReelItem(
+                        postModel: reelPosts[index],
+                        index: index,
+                      );
+                    },
+                    childCount: reelPosts.length + (_hasMore ? 1 : 0),
+                  ),
+                ),
+              ],
             ),
           ),
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -142,6 +184,7 @@ class _ReelPageState extends ConsumerState<ReelPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _pageController.dispose();
     super.dispose();
   }

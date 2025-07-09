@@ -23,8 +23,12 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 class ReelItem extends StatefulWidget {
   final PostModel postModel;
-
-  const ReelItem({Key? key, required this.postModel}) : super(key: key);
+  final int index;
+  const ReelItem({
+    Key? key,
+    required this.postModel,
+    required this.index,
+  }) : super(key: key);
 
   @override
   _ReelItemState createState() => _ReelItemState();
@@ -38,14 +42,27 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     if (widget.postModel.postType == PostType.video.name) {
-      _initializeVideo();
+      _videoService = VideoService()
+        ..videoUrl = ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
     }
-  }
 
-  void _initializeVideo() {
-    _videoService = VideoService();
-    final videoURL = ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
-    _videoService!.loadVideo(videoURL);
+    if (widget.index == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final width = MediaQuery.of(context).size.width;
+        final height = MediaQuery.of(context).size.height;
+
+        _videoService?.onVisibilityChanged(
+          VisibilityInfo(
+            // same key you used on your VisibilityDetector
+            key: Key('post-reel-${widget.postModel.postID}'),
+            // full widget size
+            size: Size(width, height),
+            // full visible bounds
+            visibleBounds: Rect.fromLTWH(0, 0, width, height),
+          ),
+        );
+      });
+    }
   }
 
   void _viewUserProfile(UserModel? userModel) {
@@ -65,7 +82,9 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
       _videoService?.dispose();
       _videoService = null;
       if (widget.postModel.postType == PostType.video.name) {
-        _initializeVideo();
+        _videoService = VideoService()
+          ..videoUrl =
+              ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
       }
     }
   }
@@ -105,6 +124,7 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
           return VisibilityDetector(
             key: Key('reel-item-${widget.postModel.postID}'),
             onVisibilityChanged: (info) {
+              print(info);
               videoService.onVisibilityChanged(info);
             },
             child: GestureDetector(
@@ -114,23 +134,56 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   color: Colors.black,
-                  child: videoService.chewieController != null &&
-                          videoService.chewieController!.videoPlayerController
-                              .value.isInitialized
-                      ? Center(
-                          // Use the video's ratio (or default to 16:9) to build the AspectRatio.
-                          child: AspectRatio(
-                            aspectRatio:
-                                widget.postModel.postVideoRatio ?? (16 / 9),
-                            child: Chewie(
-                                controller: videoService.chewieController!),
-                          ),
-                        )
-                      : CustomShimmer(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
+                  child: AspectRatio(
+                    aspectRatio: widget.postModel.postVideoRatio ?? 0.5,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Thumbnail always shown in background
+                        CustomImage(
+                          imageKey: widget.postModel.videoImage,
+                          width: 300,
+                          height: 300,
+                          boxFit: BoxFit.contain,
                         ),
+
+                        // Video only visible once initialized
+                        if (videoService.chewieController != null)
+                          AnimatedOpacity(
+                            opacity: videoService.chewieController!
+                                    .videoPlayerController.value.isInitialized
+                                ? 1.0
+                                : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Chewie(
+                              controller: videoService.chewieController!,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
+                // Container(
+                //   width: MediaQuery.of(context).size.width,
+                //   height: MediaQuery.of(context).size.height,
+                //   color: Colors.black,
+                //   child: videoService.chewieController != null &&
+                //           videoService.chewieController!.videoPlayerController
+                //               .value.isInitialized
+                //       ? Center(
+                //           // Use the video's ratio (or default to 16:9) to build the AspectRatio.
+                //           child: AspectRatio(
+                //             aspectRatio:
+                //                 widget.postModel.postVideoRatio ?? (16 / 9),
+                //             child: Chewie(
+                //                 controller: videoService.chewieController!),
+                //           ),
+                //         )
+                //       : CustomShimmer(
+                //           width: MediaQuery.of(context).size.width,
+                //           height: MediaQuery.of(context).size.height,
+                //         ),
+                // ),
                 Positioned(
                   left: 20,
                   bottom: 12,

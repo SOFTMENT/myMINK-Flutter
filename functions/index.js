@@ -18,6 +18,7 @@ const videoIntelligence = require("@google-cloud/video-intelligence").v1;
 const { Storage } = require("@google-cloud/storage");
 const { PassThrough } = require("stream");
 const { v4: uuidv4 } = require("uuid");
+const { RtcTokenBuilder, RtcRole } = require("agora-access-token");
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -53,6 +54,104 @@ const s3 = new AWS.S3({
 const visionClient = new vision.ImageAnnotatorClient();
 const videoIntelligenceClient =
   new videoIntelligence.VideoIntelligenceServiceClient();
+
+exports.sendUnifiedNotification = functions.https.onCall(
+  async (data, context) => {
+    const {
+      title,
+      body,
+      agoraToken,
+      channelName,
+      callerName,
+      callId,
+      fcmToken, // alias
+    } = data;
+
+    if (!fcmToken) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Missing deviceToken or fcmToken"
+      );
+    }
+
+    let message;
+
+    if (agoraToken && channelName && callerName && callId) {
+      // Call-type notification
+      message = {
+        token: fcmToken,
+        android: {
+          priority: "high",
+        },
+        data: {
+          id: callId,
+          nameCaller: callerName,
+          handle: "1234567890",
+          type: "0",
+          avatar: "https://i.pravatar.cc/100",
+          notificationtype: "incoming_call",
+          agoraToken: agoraToken,
+          channelName: channelName,
+        },
+      };
+    } else if (title || body) {
+      // Simple push
+      message = {
+        token: fcmToken,
+        notification: {
+          title: title || "Default Title",
+          body: body || "Default Body",
+        },
+      };
+    } else {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Missing notification data"
+      );
+    }
+
+    try {
+      console.log("Sending FCM message:", message);
+      const response = await admin.messaging().send(message);
+      console.log("FCM send response:", response);
+      return { success: true, message: "Notification sent", response };
+    } catch (error) {
+      console.error("Notification send error:", error);
+      throw new functions.https.HttpsError("internal", error.message);
+    }
+  }
+);
+
+// Replace with your Agora App ID and App Certificate
+const APP_ID = "107d8337cdc34ecca9be641fed1809da";
+const APP_CERTIFICATE = "87dcefa31ae9482fbe4fe6f610fadb4b";
+
+exports.generateAgoraToken = functions.https.onCall((data, context) => {
+  const channelName = data.channelName;
+
+  if (!channelName) {
+    throw new functions.https.HttpsError(
+      "invalid-argument",
+      "Missing channelName in request data"
+    );
+  }
+
+  const role = RtcRole.PUBLISHER;
+  const expirationTimeInSeconds = 3600; // 1 hour
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const privilegeExpireTs = currentTimestamp + expirationTimeInSeconds;
+
+  const token = RtcTokenBuilder.buildTokenWithUid(
+    APP_ID,
+    APP_CERTIFICATE,
+    channelName,
+    0, // UID = 0 (will be set by Agora)
+    role,
+    privilegeExpireTs
+  );
+
+  return { token };
+});
 
 exports.searchByAlgolia = functions.https.onCall((data, context) => {
   // Check user authentication
@@ -2688,29 +2787,3 @@ exports.scheduledFirestoreExport = functions.pubsub
       throw new Error("Export operation failed");
     }
   });
-
-exports.sendNotification = functions.https.onCall(async (data, context) => {
-  // Extract the device token from the data object passed from the client
-  const deviceToken = data.deviceToken;
-  const title = data.title || "Default Title";
-  const body = data.body || "Default Body Message";
-
-  // Create the message payload
-  const message = {
-    notification: {
-      title: title,
-      body: body,
-    },
-    token: deviceToken,
-  };
-
-  try {
-    // Send the notification
-    const response = await admin.messaging().send(message);
-    console.log("Successfully sent message:", response);
-    return { success: true, message: "Notification sent successfully" };
-  } catch (error) {
-    console.error("Error sending message:", error);
-    return { success: false, message: "Error sending notification", error };
-  }
-});

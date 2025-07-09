@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  agora_rtc_engine
   amplify_db_common
   audioplayers_windows
   cloud_firestore
@@ -11,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_auth
   firebase_core
   geolocator_windows
+  iris_method_channel
   permission_handler_windows
   sentry_flutter
   share_plus
