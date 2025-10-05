@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart';
+
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/features/account/widgets/feature_item.dart';
@@ -47,13 +47,15 @@ class FeaturesList extends StatelessWidget {
             onTap: () {
               switch (index) {
                 case 0:
-                  // Handle Friends or Events tap
+                  context.push(AppRoutes.eventHomePage);
                   break;
                 case 1:
                   // Handle Market tap
+                  context.push(AppRoutes.marketplaceHomePage);
                   break;
                 case 2:
                   // Handle Business Promotion tap
+                  context.push(AppRoutes.businessHomePage);
                   break;
                 case 3:
                   // Handle To Do tap

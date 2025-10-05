@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:intl/intl.dart';
+
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/widgets/custom_app_bar.dart';
 import 'package:mymink/core/widgets/chat_bubble.dart';
@@ -10,6 +10,7 @@ import 'package:mymink/features/discussion/widgets/reply_input_bar.dart';
 
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
 import 'package:mymink/core/services/chat_bot_service.dart';
+import 'package:mymink/gen/assets.gen.dart';
 
 class ChatBotPage extends StatefulWidget {
   const ChatBotPage({super.key});
@@ -108,7 +109,27 @@ class _ChatBotPageState extends State<ChatBotPage> {
       body: DismissKeyboardOnTap(
         child: Column(
           children: [
-            CustomAppBar(title: 'My Mink Chatbot'),
+            CustomAppBar(
+              leadingWidget: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(1000),
+                    child: Assets.images.bot.image(width: 44, height: 44),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  const Text(
+                    'my MINK Chatbot',
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              title: '',
+            ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _messagesRef.orderBy('timestamp').snapshots(),

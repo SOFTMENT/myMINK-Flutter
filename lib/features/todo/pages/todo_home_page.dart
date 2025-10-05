@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:mymink/core/constants/app_routes.dart';
+import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/widgets/custom_app_bar.dart';
 import 'package:mymink/features/todo/data/models/todo_model.dart';
@@ -108,7 +109,7 @@ class TodoHomePage extends StatelessWidget {
               child: StreamBuilder<QuerySnapshot>(
                 // Change your stream to:
                 stream: FirebaseFirestore.instance
-                    .collection('Tasks')
+                    .collection(Collections.tasks)
                     .where('uid', isEqualTo: user.uid)
                     .orderBy(
                         'isFinished') // <-- unfinished (false) first, then finished (true)
@@ -119,7 +120,6 @@ class TodoHomePage extends StatelessWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snap.hasError) {
-                    print(snap.error);
                     return Center(child: Text('Error: ${snap.error}'));
                   }
                   final docs = snap.data?.docs ?? [];
@@ -175,7 +175,7 @@ class TodoHomePage extends StatelessWidget {
                                 GestureDetector(
                                   onTap: () {
                                     FirebaseFirestore.instance
-                                        .collection('Tasks')
+                                        .collection(Collections.tasks)
                                         .doc(task.id)
                                         .update({
                                       'isFinished': !task.isFinished,

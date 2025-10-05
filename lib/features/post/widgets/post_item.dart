@@ -6,6 +6,7 @@ import 'package:mymink/core/constants/api_constants.dart';
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/services/aws_uploader.dart';
+import 'package:mymink/core/services/video_service_home.dart';
 import 'package:mymink/core/utils/date_formatter.dart';
 import 'package:mymink/core/widgets/custom_icon_button.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
@@ -31,14 +32,15 @@ class PostItem extends StatefulWidget {
 }
 
 class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
-  VideoService? _videoService;
+  VideoServiceHome? _videoService;
+  String? enCaption;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     if (widget.postModel.postType == PostType.video.name) {
-      _videoService = VideoService()
+      _videoService = VideoServiceHome()
         ..videoUrl = ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
     }
   }
@@ -55,32 +57,32 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
   void didUpdateWidget(covariant PostItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.postModel.postVideo != oldWidget.postModel.postVideo) {
-      // Tear down the old service completely.
       _videoService?.disposeVideo();
       _videoService?.dispose();
 
-      // Create a new one, but only assign its URL—no loading yet.
       if (widget.postModel.postType == PostType.video.name) {
-        _videoService = VideoService()
+        _videoService = VideoServiceHome()
           ..videoUrl =
               ApiConstants.getFullVideoURL(widget.postModel.postVideo!);
       }
     }
   }
 
+  // ✅ Same fix as in ReelItem
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!mounted) return;
     if (widget.postModel.postType == PostType.video.name &&
         _videoService != null) {
-      if (state == AppLifecycleState.paused) {
-        _videoService?.pauseVideo();
+      if (state == AppLifecycleState.paused ||
+          state == AppLifecycleState.inactive) {
+        _videoService?.pauseVideo(); // remember intent for resume
       } else if (state == AppLifecycleState.resumed) {
-        if (ModalRoute.of(context)?.isCurrent == true &&
-            VideoService.currentlyPlaying == _videoService) {
-          _videoService?.playVideo();
-          _videoService?.isPlaying = true;
-        }
+        _videoService?.handleAppResumed(); // resume if visible enough
+        // Nudge visibility system to recompute visibleFraction
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          VisibilityDetectorController.instance.notifyNow();
+        });
       }
     }
   }
@@ -157,7 +159,26 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
                             ),
                           ),
                         ],
-                      )
+                      ),
+                      if (widget.postModel.bid != null)
+                        const SizedBox(height: 3),
+                      if (widget.postModel.bid != null &&
+                          (widget.postModel.isPromoted != null &&
+                              widget.postModel.isPromoted!))
+                        Row(
+                          children: [
+                            Assets.images.certificate
+                                .image(width: 16, height: 16),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'Sponsored ',
+                              style: TextStyle(
+                                color: AppColors.primaryBlue,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
@@ -171,8 +192,12 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
                         Icons.more_horiz,
                         color: AppColors.textBlack,
                       ),
-                      onPressed: () {
-                        showPostBottomSheet(context, widget.postModel);
+                      onPressed: () async {
+                        final caption = await showPostBottomSheet(
+                            context, widget.postModel);
+                        setState(() {
+                          enCaption = caption;
+                        });
                       },
                       width: 32,
                     ),
@@ -186,7 +211,9 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
-                  widget.postModel.caption!.trim(),
+                  enCaption != null
+                      ? enCaption!.trim()
+                      : widget.postModel.caption!.trim(),
                   style: const TextStyle(
                     color: AppColors.textGrey,
                     fontSize: 12,
@@ -196,10 +223,9 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
             const SizedBox(height: 12),
             // Content: video or image.
             if (widget.postModel.postType == PostType.video.name)
-              // Wrap the video content with a provider and a consumer.
-              provider.ChangeNotifierProvider<VideoService>.value(
+              provider.ChangeNotifierProvider<VideoServiceHome>.value(
                 value: _videoService!,
-                child: provider.Consumer<VideoService>(
+                child: provider.Consumer<VideoServiceHome>(
                   builder: (context, videoService, child) {
                     return VisibilityDetector(
                       key: Key('post-item-${widget.postModel.postID}'),
@@ -280,7 +306,7 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
               ),
             const SizedBox(height: 10),
             // Post action buttons.
-            Container(
+            SizedBox(
               height: 50,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -292,7 +318,6 @@ class _PostItemState extends State<PostItem> with WidgetsBindingObserver {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Only the like button widget is built here
                           LikeButton(postId: widget.postModel.postID ?? ''),
                           const SizedBox(width: 20),
                           const Text(

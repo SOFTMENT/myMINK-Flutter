@@ -122,6 +122,8 @@ exports.sendUnifiedNotification = functions.https.onCall(
   }
 );
 
+exports.pingGenerateAgoraToken = require("./ping").pingGenerateAgoraToken;
+
 // Replace with your Agora App ID and App Certificate
 const APP_ID = "107d8337cdc34ecca9be641fed1809da";
 const APP_CERTIFICATE = "87dcefa31ae9482fbe4fe6f610fadb4b";
@@ -409,9 +411,9 @@ exports.updateFeedsOnNewPost = functions
     const images = postData.postImages || [];
     const postVideo = postData.postVideo;
     const videoImage = postData.videoImage;
-    const image_base_url =
-      "https://d1bak4qdzgw57r.cloudfront.net/fit-in/500x500/public/";
-    const video_base_url = "https://d3uhzx9vktk5vy.cloudfront.net/public/";
+    const image_base_url = "https://d34hi5x7melm0j.cloudfront.net/";
+    const video_base_url =
+      "https://mymink-storagea113e-dev.s3.ap-southeast-2.amazonaws.com/";
 
     try {
       // Update the feed for the user who created the post
@@ -593,8 +595,7 @@ exports.updateFeedsOnPostDeletion = functions.firestore
 
 exports.checkExplicitImage = functions.https.onCall(async (data, context) => {
   const imageName = data.image;
-  const image_base_url =
-    "https://d1bak4qdzgw57r.cloudfront.net/fit-in/500x500/public/";
+  const image_base_url = "https://d34hi5x7melm0j.cloudfront.net/";
 
   try {
     // Wait for the explicit content detection

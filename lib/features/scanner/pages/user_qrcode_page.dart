@@ -11,7 +11,7 @@ import 'package:mymink/core/widgets/custom_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
 import 'package:mymink/core/utils/common_utils.dart';
-import 'package:mymink/gen/assets.gen.dart';
+
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -54,10 +54,10 @@ class _UserQrcodePageState extends State<UserQrcodePage> {
         .doc(uid)
         .get();
     if (doc.exists) {
-      final saved = doc.data()?['profileURL'] as String?;
-      if (saved != null && saved.isNotEmpty) {
-        _profileLink = saved;
-        _userModel.profileURL = saved;
+      final url = doc.data()?['profileURL'] as String?;
+      if (url != null && url.isNotEmpty) {
+        _profileLink = url;
+        _userModel.profileURL = url;
         setState(() => _isLoading = false);
         return;
       }
@@ -67,11 +67,12 @@ class _UserQrcodePageState extends State<UserQrcodePage> {
     final newLink =
         await DeepLinkService.createDeepLinkForUserProfile(_userModel);
     if (newLink.hasData) {
+      _profileLink = newLink.data;
       _userModel.profileURL = newLink.data;
-      await FirebaseFirestore.instance
+      FirebaseFirestore.instance
           .collection(Collections.users)
           .doc(uid)
-          .set({'profileURL': newLink}, SetOptions(merge: true));
+          .set({'profileURL': newLink.data}, SetOptions(merge: true));
     } else {
       print(newLink.error);
     }

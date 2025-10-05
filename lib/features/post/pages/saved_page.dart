@@ -96,15 +96,15 @@ class _SavedPageState extends State<SavedPage> {
     });
 
     // If the grid isn’t scrollable (content height less than viewport), fetch more.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients &&
-          _scrollController.position.maxScrollExtent <=
-              _scrollController.position.viewportDimension &&
-          _hasMore &&
-          !_isLoading) {
-        _fetchPosts();
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (_scrollController.hasClients &&
+    //       _scrollController.position.maxScrollExtent <=
+    //           _scrollController.position.viewportDimension &&
+    //       _hasMore &&
+    //       !_isLoading) {
+    //     _fetchPosts();
+    //   }
+    // });
   }
 
   @override

@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -23,7 +22,8 @@ class ImageService {
   static const String baseUrl = ApiConstants.awsImageBaseURL;
 
   /// Pick Image from Gallery or Camera
-  Future<File?> pickImage(BuildContext context, String source) async {
+  Future<File?> pickImage(BuildContext context, String source,
+      {double ratioX = 1, double ratioY = 1}) async {
     try {
       XFile? pickedFile;
 
@@ -36,7 +36,7 @@ class ImageService {
       }
 
       if (pickedFile != null) {
-        return cropImage(File(pickedFile.path));
+        return cropImage(File(pickedFile.path), ratioX, ratioY);
       }
       return null;
     } catch (e) {
@@ -46,11 +46,11 @@ class ImageService {
   }
 
   /// Crop Image to Square
-  Future<File?> cropImage(File imageFile) async {
+  Future<File?> cropImage(File imageFile, double ratioX, double ratioY) async {
     try {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: imageFile.path,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        aspectRatio: CropAspectRatio(ratioX: ratioX, ratioY: ratioY),
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Crop Image',
@@ -120,8 +120,8 @@ class ImageService {
 
   /// Show Permission Dialog to Open Settings
   static void showPermissionDialog(BuildContext context) async {
-    final status = await Permission.photos.request();
-    print(status);
+    await Permission.photos.request();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -221,8 +221,8 @@ class ImageService {
       imageFormat: ImageFormat.JPEG,
       maxHeight:
           600, // specify the height of the thumbnail (the width is auto-scaled)
-      quality: 70,
-      timeMs: 600,
+      quality: 46,
+      timeMs: 100,
     );
     return uint8list;
   }
@@ -240,7 +240,7 @@ class ImageService {
           await FlutterImageCompress.compressAndGetFile(
         imageFile.absolute.path,
         targetPath,
-        quality: 70, // Lower quality for more compression
+        quality: 46, // Lower quality for more compression
         format: format, // Use JPEG format
         keepExif: false,
       );
@@ -250,7 +250,6 @@ class ImageService {
       }
       return null;
     } catch (e) {
-      print(e);
       FirebaseService.logErrorToFirebase("Compress And Convert Image: $e");
       return null;
     }
@@ -263,9 +262,10 @@ class ImageService {
 
       final MediaInfo? mediaInfo = await VideoCompress.compressVideo(
         videoFile.path,
-        quality: VideoQuality.Res960x540Quality,
+        quality: VideoQuality.Res1280x720Quality,
         deleteOrigin: false,
         includeAudio: true,
+        frameRate: 30,
       );
 
       if (mediaInfo?.file == null) {

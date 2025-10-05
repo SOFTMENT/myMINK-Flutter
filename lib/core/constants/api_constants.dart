@@ -1,6 +1,6 @@
 class ApiConstants {
   static const String awsVideoBaseURL =
-      'https://mymink-storagea113e-dev.s3.ap-southeast-2.amazonaws.com';
+      'https://res.cloudinary.com/dyzki97p7/video/upload/w_540/q_auto:eco/v1758904461';
   static const String awsImageBaseURL = 'https://d34hi5x7melm0j.cloudfront.net';
   static const String weatherBaseUrl = 'ss';
 

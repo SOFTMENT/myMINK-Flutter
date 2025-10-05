@@ -2,7 +2,10 @@ import 'dart:io';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:aws_common/vm.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+
 import 'package:flutter/material.dart';
+import 'package:mymink/core/services/cloudinary_rest.dart';
+
 import 'package:mymink/core/utils/result.dart';
 
 typedef ProgressCallback = void Function(double progress);
@@ -107,13 +110,40 @@ class AWSUploader {
     }
   }
 
+  static Future<Result<String?>> uploadFileCloudinary({
+    required BuildContext context,
+    required File video,
+    required String folderName,
+    ProgressCallback? onProgress,
+
+    // Cloudinary creds (⚠️ putting secret in app is insecure)
+    String cloudName = 'dyzki97p7',
+    String cloudApiKey = '848665798335974',
+    String cloudApiSecret = '_NvprCHYgNEVUWaaOun-xcK-6yg',
+  }) async {
+    try {
+      final upload = await CloudinaryRest.uploadVideoSigned(
+        file: video,
+        cloudName: cloudName,
+        apiKey: cloudApiKey,
+        apiSecret: cloudApiSecret,
+        folder: folderName,
+        onProgress: onProgress,
+      );
+
+      // Return the compressed MP4 delivery URL
+      return Result(data: upload.publicId);
+    } catch (e) {
+      return Result(error: e.toString());
+    }
+  }
+
   // Upload Image or Video to AWS S3
   static Future<Result<String?>> uploadFile({
     File? photo,
     File? video,
     required String folderName,
     required PostType postType,
-    bool shouldHideProgress = false,
     String type = "png",
     String? previousKey,
     required BuildContext context,

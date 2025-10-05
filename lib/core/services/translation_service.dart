@@ -8,7 +8,6 @@ class TranslationService {
 
   /// Translates [text] to English.
   Future<String> translateText({required String text}) async {
-    print(text);
     const apiKey =
         "AIzaSyClxuD0JmWn1qG2QecBXuuaFzsdv-jcuMw"; // Use your API key here
     final encodedText = Uri.encodeComponent(text);

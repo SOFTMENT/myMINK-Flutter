@@ -71,18 +71,18 @@ class TopicHeader extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 16, left: 25, right: 25),
                 child: header,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Text(
                   discussionTopic.title,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
                       color: Color.fromARGB(255, 0, 0, 0)),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Text(
@@ -94,10 +94,12 @@ class TopicHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 15,
+                height: 10,
               ),
               const Divider(
-                  height: 5, thickness: 5, color: AppColors.primaryRed)
+                  height: 4,
+                  thickness: 4,
+                  color: Color.fromARGB(255, 219, 219, 219))
             ],
           ),
         );

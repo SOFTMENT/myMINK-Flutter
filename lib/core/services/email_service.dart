@@ -47,8 +47,8 @@ class EmailService {
                     </div>
                     <div style="background-color: rgb(255, 255, 255);">
                       <div style="color: rgb(0, 0, 0); text-align: left;">
-                        <h2 style="margin: 1rem 0">Verification code</h2>
-                        <p style="padding-bottom: 16px">Please use the below code for email verification</p>
+                        <h2 style="margin: 1rem 0">Password Reset</h2>
+                        <p style="padding-bottom: 16px">Please use the below code for verification</p>
                         <p style="padding-bottom: 16px">
                           <strong style="font-size: 130%;">$randomNumber</strong>
                         </p>
@@ -109,7 +109,7 @@ class EmailService {
                         </div>
                       </div>
                       <div style="padding-top: 20px; color: rgb(153, 153, 153); text-align: center;">
-                        <p style="padding-bottom: 16px">©2023 My Mink Pty Ltd</p>
+                        <p style="padding-bottom: 16px">©2023 My MINK Pty Ltd</p>
                       </div>
                     </td>
                   </tr>

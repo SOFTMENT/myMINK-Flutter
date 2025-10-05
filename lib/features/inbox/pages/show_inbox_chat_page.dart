@@ -1,10 +1,7 @@
 // One-to-One Chat UI (Flutter Equivalent of your iOS ShowChatViewController)
 
-import 'dart:math';
-
-import 'package:agora_call_kit/agora_call_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mymink/core/constants/app_routes.dart';
@@ -12,12 +9,14 @@ import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/services/notification_service.dart';
 import 'package:mymink/core/services/permission_helper.dart';
+
 import 'package:mymink/core/widgets/chat_bubble.dart';
 import 'package:mymink/core/widgets/custom_app_bar.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
 import 'package:mymink/core/widgets/dismiss_keyboard_ontap.dart';
 import 'package:mymink/features/discussion/widgets/reply_input_bar.dart';
 import 'package:mymink/features/inbox/data/models/all_message_model.dart';
+import 'package:mymink/features/videocall/data/services/video_call_services.dart';
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
 import 'package:mymink/gen/assets.gen.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -41,8 +40,7 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late final CollectionReference _chatRef;
-  String _channelName = '';
-  String? _agoraToken;
+
   @override
   void initState() {
     super.initState();
@@ -50,35 +48,11 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
         .collection(Collections.chats)
         .doc(widget.currentUser.uid)
         .collection(widget.friend.uid ?? 'frienduid');
-    _channelName = randomChannelName;
-
-    fetchAgoraToken(_channelName).then((token) {
-      setState(() {
-        _agoraToken = token;
-      });
-    });
   }
 
-  Future<String?> fetchAgoraToken(String channelName) async {
-    try {
-      final HttpsCallable callable =
-          FirebaseFunctions.instance.httpsCallable('generateAgoraToken');
-      final result = await callable.call(<String, dynamic>{
-        'channelName': channelName,
-      });
-
-      return result.data['token'] as String?;
-    } on FirebaseFunctionsException catch (e) {
-      print('FirebaseFunctionsException: ${e.message}');
-    } catch (e) {
-      print('Unexpected error: $e');
-    }
-    return null;
-  }
-
-  void _sendMessage() async {
+  void _sendMessage({bool isVideoCall = false}) async {
     final text = _controller.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && !isVideoCall) return;
 
     _controller.clear();
     final messageId = _chatRef.doc().id;
@@ -86,7 +60,7 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
 
     final messageData = AllMessageModel(
       senderUid: widget.currentUser.uid,
-      message: text,
+      message: isVideoCall ? '*--||videocall||--*' : text,
       messageId: messageId,
       date: DateTime.now(),
     ).toMap();
@@ -102,7 +76,7 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
     await FirebaseFirestore.instance
         .collection(Collections.chats)
         .doc(widget.currentUser.uid)
-        .collection('lastMessage')
+        .collection(Collections.lastMessage)
         .doc(widget.friend.uid)
         .set({
       'message': text,
@@ -118,7 +92,7 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
     await FirebaseFirestore.instance
         .collection(Collections.chats)
         .doc(widget.friend.uid)
-        .collection('lastMessage')
+        .collection(Collections.lastMessage)
         .doc(widget.currentUser.uid)
         .set({
       'message': text,
@@ -131,6 +105,11 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
       'senderDeviceToken': widget.currentUser.notificationToken,
     });
 
+    if (!isVideoCall)
+      NotificationService.sendPushNotification(
+          fcmToken: widget.friend.notificationToken ?? 'token',
+          title: widget.currentUser.fullName ?? 'Name',
+          body: text);
     _scrollToBottom();
   }
 
@@ -144,12 +123,6 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
         );
       }
     });
-  }
-
-  String get randomChannelName {
-    const chars = 'abcdefghijklmnopqrstuvwxyz';
-    final rand = Random();
-    return List.generate(10, (_) => chars[rand.nextInt(chars.length)]).join();
   }
 
   @override
@@ -186,7 +159,7 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
                 ],
               ),
               title: '',
-              gestureDetector: _agoraToken == null
+              gestureDetector: VideoCallService.agoraToken == null
                   ? null
                   : GestureDetector(
                       child:
@@ -206,27 +179,28 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
 
                         if (!granted) return;
 
-                        ;
-
                         NotificationService.sendCallNotification(
                             fcmToken:
                                 widget.friend.notificationToken ?? 'token',
-                            agoraToken: _agoraToken ?? '',
-                            channelName: _channelName,
+                            agoraToken: VideoCallService.agoraToken ?? '',
+                            channelName: VideoCallService.channelName,
                             callerName: widget.currentUser.fullName ?? 'Name',
                             callId: const Uuid().v4().toString());
 
+                        _sendMessage(isVideoCall: true);
+
                         context.push(AppRoutes.videoCallPage, extra: {
-                          'channelName': _channelName,
-                          'token': _agoraToken,
-                          'isCaller': true
+                          'channelName': VideoCallService.channelName,
+                          'token': VideoCallService.agoraToken,
+                          'isCaller': true,
+                          'calleModel': widget.friend
                         });
                       },
                     ),
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: _chatRef.orderBy('date').snapshots(),
+                stream: _chatRef.orderBy('date', descending: true).snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
@@ -248,6 +222,7 @@ class _ShowInboxChatPageState extends State<ShowInboxChatPage> {
                       return ChatBubble(
                         content: msg.message ?? '',
                         isUser: isMe,
+                        showSenderName: false,
                         timestamp: msg.date ?? new DateTime.now(),
                         senderName: isMe
                             ? widget.currentUser.fullName

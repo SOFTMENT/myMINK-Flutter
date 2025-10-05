@@ -1,17 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/services/firebase_service.dart';
-import 'package:mymink/core/services/translation_service.dart';
+
 import 'package:mymink/features/post/data/models/post_model.dart';
 import 'package:mymink/features/post/widgets/show_report_dialog.dart';
 
 // Import your assets and other necessary packages here.
 
 /// Shows a modal bottom sheet with actions for the given [postModel].
-Future<void> showPostBottomSheet(BuildContext context, PostModel postModel) {
+Future<String?> showPostBottomSheet(
+    BuildContext context, PostModel postModel) async {
   final currentUserUid = FirebaseService().auth.currentUser!.uid;
   final _height = 44.0;
-  return showModalBottomSheet(
+  final caption = await showModalBottomSheet(
     context: context,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
@@ -22,6 +26,35 @@ Future<void> showPostBottomSheet(BuildContext context, PostModel postModel) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (currentUserUid == postModel.uid &&
+                postModel.bid != null &&
+                !(postModel.isPromoted ?? true))
+              SizedBox(
+                height: _height,
+                child: ListTile(
+                  splashColor: AppColors.transparent,
+                  leading: const Icon(Icons.local_fire_department,
+                      color: Colors.black),
+                  title: const Text("Promote"),
+                  onTap: () async {
+                    await FirebaseService()
+                        .db
+                        .collection(Collections.posts)
+                        .doc(postModel.postID!)
+                        .set(
+                      {'isPromoted': true},
+                      SetOptions(merge: true),
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Promoted'),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
             if (currentUserUid == postModel.uid)
               SizedBox(
                 height: _height,
@@ -99,25 +132,8 @@ Future<void> showPostBottomSheet(BuildContext context, PostModel postModel) {
                   leading: const Icon(Icons.translate, color: Colors.black),
                   title: const Text("Translate"),
                   onTap: () {
-                    Navigator.of(context).pop();
-                    // Show a loader while translating.
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) =>
-                          const Center(child: CircularProgressIndicator()),
-                    );
-                    TranslationService.shared
-                        .translateText(text: postModel.caption!)
-                        .then((translatedText) {
-                      Navigator.of(context).pop(); // dismiss loader
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              "Translated: ${Uri.decodeComponent(translatedText)}"),
-                        ),
-                      );
-                    });
+                    Navigator.of(context)
+                        .pop(postModel.enCaption ?? postModel.caption!);
                   },
                 ),
               ),
@@ -126,4 +142,6 @@ Future<void> showPostBottomSheet(BuildContext context, PostModel postModel) {
       );
     },
   );
+
+  return caption as String?;
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mymink/core/constants/colors.dart';
+
 import 'package:mymink/gen/assets.gen.dart';
 
 class TodoIntroSheet extends StatelessWidget {

@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/widgets/custom_app_bar.dart';
+import 'package:mymink/core/widgets/progress_hud.dart';
 import 'package:mymink/core/widgets/search_bar_with_button.dart';
 import 'package:mymink/features/library/models/book_model.dart';
 import 'epub_reader_page.dart';
@@ -116,97 +117,103 @@ class _LibraryHomePageState extends State<LibraryHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
+      body: Stack(
         children: [
-          CustomAppBar(
-            title: 'Library',
-            gestureDetector: GestureDetector(
-              onTap: () async {
-                // pick a letter and then run search
-                final letter =
-                    await context.push<String>(AppRoutes.libraryAtoZPage);
-                if (letter != null) {
-                  _searchController.text = letter;
-                  await _applySearch();
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(color: Colors.grey.withAlpha(80), blurRadius: 4)
-                  ],
-                ),
-                child: const Icon(Symbols.sort_by_alpha, size: 22),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: SearchBarWithButton(
-              controller: _searchController,
-              hintText: 'Search Books',
-              onPressed: _applySearch,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : GridView.builder(
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.only(
-                        top: 8, bottom: 24, left: 25, right: 25),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.6,
-                      crossAxisSpacing: 4,
-                      mainAxisSpacing: 6,
+          Column(
+            children: [
+              CustomAppBar(
+                title: 'Library',
+                gestureDetector: GestureDetector(
+                  onTap: () async {
+                    // pick a letter and then run search
+                    final letter =
+                        await context.push<String>(AppRoutes.libraryAtoZPage);
+                    if (letter != null) {
+                      _searchController.text = letter;
+                      await _applySearch();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.withAlpha(80), blurRadius: 4)
+                      ],
                     ),
-                    itemCount: _books.length,
-                    itemBuilder: (ctx, i) {
-                      final book = _books[i];
-                      final imageUrl =
-                          'https://www.gutenberg.org/cache/epub/${book.id}/pg${book.id}.cover.medium.jpg';
-                      return GestureDetector(
-                        onTap: () => _openBook(book.formats),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          elevation: 1,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12)),
-                                  child: Image.network(
-                                    imageUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) =>
-                                        const Icon(Icons.image),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(6),
-                                child: Text(
-                                  book.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                    child: const Icon(Symbols.sort_by_alpha, size: 22),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: SearchBarWithButton(
+                  controller: _searchController,
+                  hintText: 'Search Books',
+                  onPressed: _applySearch,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: GridView.builder(
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.only(
+                      top: 8, bottom: 24, left: 25, right: 25),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.6,
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 6,
+                  ),
+                  itemCount: _books.length,
+                  itemBuilder: (ctx, i) {
+                    final book = _books[i];
+                    final imageUrl =
+                        'https://www.gutenberg.org/cache/epub/${book.id}/pg${book.id}.cover.medium.jpg';
+                    return GestureDetector(
+                      onTap: () => _openBook(book.formats),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        elevation: 1,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12)),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.image),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: Text(
+                                book.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
+          if (_isLoading)
+            Center(
+              child: ProgressHud(),
+            )
         ],
       ),
     );

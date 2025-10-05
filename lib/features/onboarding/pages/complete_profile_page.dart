@@ -75,10 +75,6 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
           _isLoading = false;
         });
       } else {
-        setState(() {
-          _isLoading = false;
-        });
-
         final result = await AWSUploader.uploadFile(
             folderName: 'ProfilePictures',
             postType: PostType.image,
@@ -86,9 +82,6 @@ class _CompleteProfilePage extends State<CompleteProfilePage> {
             photo: _profileImage,
             context: context);
         if (result.hasData) {
-          setState(() {
-            _isLoading = true;
-          });
           final downloadURL = result.data!;
           final isExplicit = await AWSUploader.checkExplicitImage(downloadURL);
           if (isExplicit) {

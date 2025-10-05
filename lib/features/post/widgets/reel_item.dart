@@ -9,7 +9,7 @@ import 'package:mymink/core/services/aws_uploader.dart';
 import 'package:mymink/core/utils/time_ago_extension.dart';
 import 'package:mymink/core/widgets/custom_icon_button.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
-import 'package:mymink/core/widgets/custom_shimmer.dart';
+
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
 
 import 'package:mymink/features/post/data/models/post_model.dart';
@@ -53,11 +53,8 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
 
         _videoService?.onVisibilityChanged(
           VisibilityInfo(
-            // same key you used on your VisibilityDetector
             key: Key('post-reel-${widget.postModel.postID}'),
-            // full widget size
             size: Size(width, height),
-            // full visible bounds
             visibleBounds: Rect.fromLTWH(0, 0, width, height),
           ),
         );
@@ -77,7 +74,6 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
   void didUpdateWidget(covariant ReelItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.postModel.postVideo != oldWidget.postModel.postVideo) {
-      // Dispose of the current video service before re-initializing.
       _videoService?.disposeVideo();
       _videoService?.dispose();
       _videoService = null;
@@ -94,14 +90,17 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
     if (!mounted) return;
     if (widget.postModel.postType == PostType.video.name &&
         _videoService != null) {
-      if (state == AppLifecycleState.paused) {
-        _videoService?.pauseVideo();
+      if (state == AppLifecycleState.paused ||
+          state == AppLifecycleState.inactive) {
+        _videoService?.pauseVideo(); // remembers intent
       } else if (state == AppLifecycleState.resumed) {
-        if (ModalRoute.of(context)?.isCurrent == true &&
-            VideoService.currentlyPlaying == _videoService) {
-          _videoService?.playVideo();
-          _videoService?.isPlaying = true;
-        }
+        // ✅ Let the service decide if it should resume based on visibility.
+        _videoService?.handleAppResumed();
+
+        // Also nudge visibility system so visibleFraction is recomputed.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          VisibilityDetectorController.instance.notifyNow();
+        });
       }
     }
   }
@@ -124,7 +123,6 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
           return VisibilityDetector(
             key: Key('reel-item-${widget.postModel.postID}'),
             onVisibilityChanged: (info) {
-              print(info);
               videoService.onVisibilityChanged(info);
             },
             child: GestureDetector(
@@ -163,27 +161,6 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-                // Container(
-                //   width: MediaQuery.of(context).size.width,
-                //   height: MediaQuery.of(context).size.height,
-                //   color: Colors.black,
-                //   child: videoService.chewieController != null &&
-                //           videoService.chewieController!.videoPlayerController
-                //               .value.isInitialized
-                //       ? Center(
-                //           // Use the video's ratio (or default to 16:9) to build the AspectRatio.
-                //           child: AspectRatio(
-                //             aspectRatio:
-                //                 widget.postModel.postVideoRatio ?? (16 / 9),
-                //             child: Chewie(
-                //                 controller: videoService.chewieController!),
-                //           ),
-                //         )
-                //       : CustomShimmer(
-                //           width: MediaQuery.of(context).size.width,
-                //           height: MediaQuery.of(context).size.height,
-                //         ),
-                // ),
                 Positioned(
                   left: 20,
                   bottom: 12,
@@ -250,7 +227,6 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Watch count column (unchanged)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -268,10 +244,8 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // Reel like button using our new ReelLikeButton widget
                           ReelLikeButton(postId: widget.postModel.postID ?? ''),
                           const SizedBox(height: 12),
-                          // Reel comment column (unchanged)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -289,10 +263,8 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // Save column (unchanged)
                           ReelSaveButton(postId: widget.postModel.postID ?? ''),
                           const SizedBox(height: 12),
-                          // Reel share column (unchanged)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -303,7 +275,6 @@ class _ReelItemState extends State<ReelItem> with WidgetsBindingObserver {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // More column (unchanged)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [

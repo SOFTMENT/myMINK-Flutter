@@ -80,7 +80,7 @@ class _DiscussionDetailPageState extends State<DiscussionDetailPage> {
                     physics: const ClampingScrollPhysics(),
                     padding: const EdgeInsets.all(0),
                     itemCount: replies.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
                     itemBuilder: (ctx, i) {
                       if (i == 0)
                         return TopicHeader(

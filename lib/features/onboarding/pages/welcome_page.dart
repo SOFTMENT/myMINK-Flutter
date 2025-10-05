@@ -3,6 +3,7 @@ import 'package:mymink/core/constants/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mymink/features/onboarding/data/services/auth_service.dart';
 import 'package:mymink/features/onboarding/data/services/user_service.dart';
+import 'package:mymink/features/post/data/services/post_service.dart';
 import 'package:mymink/gen/assets.gen.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -16,6 +17,7 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleNavigation();
     });
@@ -25,11 +27,16 @@ class _WelcomePageState extends State<WelcomePage> {
     await AuthService.checkFirstLaunch();
 
     if (AuthService.isLoggedIn) {
+      await PostService.loadInitialHomePosts(5);
+      await PostService.loadInitialReelPosts(5);
+
       await UserService.handleUserStateByUid(
         context,
         AuthService.currentUser!.uid,
       );
     } else {
+      PostService.loadInitialHomePosts(15);
+      PostService.loadInitialReelPosts(15);
       context.go(AppRoutes.entry);
     }
   }

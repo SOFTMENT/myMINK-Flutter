@@ -168,7 +168,7 @@ void showSettingsBottomSheet(
                     AuthService.logout(context);
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -245,13 +245,13 @@ Widget _buildListTile({
   Color titleColor = const Color.fromARGB(161, 43, 43, 43),
 }) {
   return SizedBox(
-    height: 50,
+    height: 47,
     child: ListTile(
       title: Text(
         title,
         style: TextStyle(
           color: titleColor,
-          fontSize: 14,
+          fontSize: 13,
         ),
       ),
       trailing: trailing,

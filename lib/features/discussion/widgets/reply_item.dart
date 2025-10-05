@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mymink/core/constants/app_routes.dart';
+
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/utils/time_ago_extension.dart';
 import 'package:mymink/core/widgets/custom_icon_button.dart';
@@ -122,7 +121,7 @@ class __ReplyItemState extends State<ReplyItem> {
                             user.fullName ?? 'Unknown',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 13,
                             ),
                           ),
                           const SizedBox(height: 1),
@@ -145,9 +144,9 @@ class __ReplyItemState extends State<ReplyItem> {
         Padding(
           padding: const EdgeInsets.only(left: 29, right: 25),
           child:
-              Text(widget.reply.content, style: const TextStyle(fontSize: 14)),
+              Text(widget.reply.content, style: const TextStyle(fontSize: 13)),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Row(
@@ -156,7 +155,7 @@ class __ReplyItemState extends State<ReplyItem> {
                 icon: Icon(
                   _up ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
                   color: _up ? AppColors.primaryBlue : Colors.grey,
-                  size: 20,
+                  size: 18,
                 ),
                 onPressed: () => _onVote(true),
               ),
@@ -166,7 +165,7 @@ class __ReplyItemState extends State<ReplyItem> {
                 icon: Icon(
                   _down ? Icons.thumb_down_rounded : Icons.thumb_down_outlined,
                   color: _down ? AppColors.primaryRed : Colors.grey,
-                  size: 20,
+                  size: 18,
                 ),
                 onPressed: () => _onVote(false),
               ),
@@ -178,7 +177,7 @@ class __ReplyItemState extends State<ReplyItem> {
           ),
         ),
         const Divider(
-          thickness: 5,
+          thickness: 3,
           color: Color.fromARGB(153, 234, 231, 231),
         )
       ],

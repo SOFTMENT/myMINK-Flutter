@@ -30,19 +30,22 @@ class TopicCard extends StatelessWidget {
                   Expanded(
                     child: Text(topic.title,
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                            fontSize: 15, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(
+                    width: 8,
                   ),
                   Text(topic.createdAt.timeAgoSinceDate(),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      style: const TextStyle(fontSize: 11, color: Colors.grey)),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               // description preview
               Text(
                 topic.description.length > 100
                     ? '${topic.description.substring(0, 100)}…'
                     : topic.description,
-                style: const TextStyle(color: AppColors.textGrey),
+                style: const TextStyle(color: AppColors.textGrey, fontSize: 13),
               ),
               const SizedBox(height: 12),
               // creator + replies + votes
@@ -76,7 +79,7 @@ class TopicCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   // replies
-                  const Icon(Icons.comment_outlined,
+                  const Icon(Icons.chat_bubble_outline,
                       size: 16, color: Colors.grey),
                   const SizedBox(width: 4),
                   Text('${topic.replyCount}',

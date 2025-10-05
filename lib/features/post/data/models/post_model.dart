@@ -6,9 +6,9 @@ class PostModel {
   DateTime? postCreateDate;
   String? postType;
   List<String>? postImages;
-  List<double>? postImagesOrientations; // CGFloat in Swift maps to double
+  List<double>? postImagesOrientations;
   String? postVideo;
-  double? postVideoRatio; // CGFloat in Swift maps to double
+  double? postVideoRatio;
   String? videoImage;
   String? caption;
   int? likes;
@@ -23,8 +23,8 @@ class PostModel {
   bool? isActive;
   String? shareURL;
   bool? isPromoted;
+  String? enCaption;
 
-  // Constructor
   PostModel({
     this.postID,
     this.postCreateDate,
@@ -46,13 +46,13 @@ class PostModel {
     this.isActive,
     this.shareURL,
     this.isPromoted,
+    this.enCaption,
   });
 
-  // Convert a PostModel into a Map for Firebase or JSON
   Map<String, dynamic> toJson() {
     return {
       'postID': postID,
-      'postCreateDate': postCreateDate,
+      'postCreateDate': postCreateDate, // Firestore handles DateTime→Timestamp
       'postType': postType,
       'postImages': postImages,
       'postImagesOrientations': postImagesOrientations,
@@ -71,35 +71,59 @@ class PostModel {
       'isActive': isActive,
       'shareURL': shareURL,
       'isPromoted': isPromoted,
+      'enCaption': enCaption,
     };
   }
 
-  // Create a PostModel from a Map (e.g., for Firebase or JSON)
+  // ----- helpers -----
+  static DateTime? _toDate(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    if (v is Timestamp) return v.toDate();
+    if (v is num) return DateTime.fromMillisecondsSinceEpoch(v.toInt());
+    if (v is String) return DateTime.tryParse(v);
+    return null;
+  }
+
+  static List<double>? _toDoubleList(dynamic v) {
+    if (v is List) {
+      return v.map((e) => (e as num).toDouble()).toList();
+    }
+    return null;
+  }
+
+  static List<String>? _toStringList(dynamic v) {
+    if (v is List) {
+      return v.map((e) => e.toString()).toList();
+    }
+    return null;
+  }
+
   factory PostModel.fromJson(Map<String, dynamic> map) {
     return PostModel(
-      postID: map['postID'],
-      postCreateDate: map['postCreateDate'] != null
-          ? (map['postCreateDate'] as Timestamp).toDate()
+      postID: map['postID'] as String?,
+      postCreateDate: _toDate(map['postCreateDate']),
+      postType: map['postType'] as String?,
+      postImages: _toStringList(map['postImages']),
+      postImagesOrientations: _toDoubleList(map['postImagesOrientations']),
+      postVideo: map['postVideo'] as String?,
+      postVideoRatio: (map['postVideoRatio'] is num)
+          ? (map['postVideoRatio'] as num).toDouble()
           : null,
-      postType: map['postType'],
-      postImages: List<String>.from(map['postImages'] ?? []),
-      postImagesOrientations:
-          List<double>.from(map['postImagesOrientations'] ?? []),
-      postVideo: map['postVideo'],
-      postVideoRatio: map['postVideoRatio']?.toDouble(),
-      videoImage: map['videoImage'],
-      caption: map['caption'],
-      likes: map['likes'],
-      comment: map['comment'],
-      shares: map['shares'],
-      uid: map['uid'],
-      bid: map['bid'],
-      notificationToken: map['notificationToken'],
-      isLiveStream: map['isLiveStream'],
-      watchCount: map['watchCount'],
-      isActive: map['isActive'],
-      shareURL: map['shareURL'],
-      isPromoted: map['isPromoted'],
+      videoImage: map['videoImage'] as String?,
+      caption: map['caption'] as String?,
+      likes: (map['likes'] as num?)?.toInt(),
+      comment: (map['comment'] as num?)?.toInt(),
+      shares: (map['shares'] as num?)?.toInt(),
+      uid: map['uid'] as String?,
+      bid: map['bid'] as String?,
+      notificationToken: map['notificationToken'] as String?,
+      isLiveStream: map['isLiveStream'] as bool?,
+      watchCount: (map['watchCount'] as num?)?.toInt(),
+      isActive: map['isActive'] as bool?,
+      shareURL: map['shareURL'] as String?,
+      isPromoted: map['isPromoted'] as bool?,
+      enCaption: map['enCaption'] as String?,
     );
   }
 }

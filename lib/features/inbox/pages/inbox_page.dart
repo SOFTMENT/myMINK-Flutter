@@ -5,10 +5,9 @@ import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/constants/colors.dart';
 import 'package:mymink/core/widgets/custom_app_bar.dart';
-import 'package:mymink/core/widgets/custom_segmented_control.dart';
+
 import 'package:mymink/core/widgets/search_bar_with_button.dart';
-import 'package:mymink/features/discussion/data/models/discussion_topic_model.dart';
-import 'package:mymink/features/discussion/widgets/dicussion_topic_list.dart';
+
 import 'package:mymink/features/inbox/data/models/last_message.dart';
 import 'package:mymink/features/inbox/widgets/inbox_widget.dart';
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
@@ -46,7 +45,7 @@ class _InboxPageState extends State<InboxPage> {
   @override
   Widget build(BuildContext context) {
     final me = UserModel.instance.uid;
-    final search = _searchCtrl.text.trim();
+    // final search = _searchCtrl.text.trim();
 
     // Base query
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance

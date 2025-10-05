@@ -45,7 +45,7 @@ dependencies:
   cloud_firestore: ^5.6.0
   firebase_messaging: ^15.2.5
   google_maps_flutter: ^2.10.0
-  google_places_flutter: ^2.0.9
+  google_places_flutter: ^2.1.0
   http: ^1.2.2
   provider: ^6.1.2
   flutter_dotenv: ^5.2.1
@@ -66,9 +66,8 @@ dependencies:
   amplify_auth_cognito: ^2.5.0
   amplify_storage_s3: ^2.5.0
   amplify_flutter: ^2.5.0
-  flutter_branch_sdk: ^8.3.1
+  flutter_branch_sdk: ^8.5.0
   cached_network_image: ^3.4.1
-  insta_assets_picker: ^3.3.0
   image_editor_plus: ^1.0.6
   image: ^4.5.2
   lottie: ^3.3.1
@@ -95,9 +94,14 @@ dependencies:
   flutter_local_notifications: ^19.2.0
   geolocator: ^14.0.1
   qr_flutter: ^4.1.0
-  ffmpeg_kit_flutter_new: ^1.6.1
-  agora_call_kit:
-    path: ../agora_call_kit
+  ffmpeg_kit_flutter_new: ^3.2.0
+  flutter_callkit_incoming: ^2.5.2
+  agora_rtc_engine: ^6.5.2
+  scrollable_positioned_list: ^0.3.8
+  camera: ^0.11.2
+  flutter_phoenix: ^1.1.1
+  photo_manager: ^3.7.1
+  photo_manager_image_provider: ^2.2.0
 
 dependency_overrides:
   web: ^0.5.0

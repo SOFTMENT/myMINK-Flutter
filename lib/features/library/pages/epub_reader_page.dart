@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' show parse;
+
 import 'package:mymink/core/widgets/custom_app_bar.dart';
 
 class BookReaderPage extends StatefulWidget {

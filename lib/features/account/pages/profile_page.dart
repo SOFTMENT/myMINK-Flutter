@@ -20,9 +20,16 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final userModel = UserModel.instance;
+  final ScrollController _scrollController = ScrollController();
 
   void _refreshProfile() {
     setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -31,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: AppColors.background,
       body: DismissKeyboardOnTap(
         child: SingleChildScrollView(
+          controller: _scrollController,
           physics: const ClampingScrollPhysics(),
           child: Stack(
             clipBehavior: Clip.none,
@@ -289,6 +297,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       GridPostWidget(
                         uid: UserModel.instance.uid ?? '',
+                        controller: _scrollController,
                       ),
                     ],
                   ),

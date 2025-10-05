@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mymink/core/constants/colors.dart';
+
 import 'package:mymink/core/utils/time_ago_extension.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
-import 'package:mymink/features/discussion/data/models/discussion_topic_model.dart';
+
 import 'package:mymink/features/inbox/data/models/last_message.dart';
 
 class InboxWidget extends StatelessWidget {

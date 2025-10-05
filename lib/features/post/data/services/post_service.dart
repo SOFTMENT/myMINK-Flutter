@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart'; // ✅ This provides `compute`
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mymink/core/constants/account_type.dart';
 import 'package:mymink/core/constants/api_constants.dart';
 import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/services/aws_uploader.dart';
@@ -11,7 +12,7 @@ import 'package:mymink/core/services/deep_link_service.dart';
 import 'package:mymink/core/services/image_service.dart';
 import 'package:mymink/core/services/video_service.dart';
 import 'package:mymink/core/utils/result.dart';
-import 'package:mymink/core/widgets/custom_dialog.dart';
+
 import 'package:mymink/features/post/data/models/paginated_posts_result.dart';
 import 'package:mymink/features/post/data/models/post_likes_data.dart';
 import 'package:mymink/features/post/data/models/post_likes_query_params.dart';
@@ -20,6 +21,8 @@ import 'package:mymink/features/onboarding/data/models/user_model.dart';
 import 'package:mymink/features/post/data/models/post_save_data.dart';
 import 'package:mymink/features/post/data/models/post_save_query_params.dart';
 import 'package:image/image.dart' as img;
+import 'package:mymink/features/post/data/stores/home_feed_cache.dart';
+import 'package:mymink/features/post/data/stores/reel_feed_cache.dart';
 
 enum PostUploadStatus {
   idle, // Not uploading
@@ -121,7 +124,6 @@ class PostService {
 
   static final postLikesProvider =
       StreamProvider.family<PostLikesData, PostLikesQueryParams>((ref, params) {
-    print('Setting up stream for postId: ${params.postId}');
     return FirebaseFirestore.instance
         .collection(Collections.posts)
         .doc(params.postId)
@@ -137,7 +139,6 @@ class PostService {
   });
 
   static Future<void> toggleLike(String postId, String currentUserUid) async {
-    print("toggleLike: start for postId: $postId, user: $currentUserUid");
     final likeDocRef = FirebaseFirestore.instance
         .collection(Collections.posts)
         .doc(postId)
@@ -228,20 +229,28 @@ class PostService {
   static Future<Result<PaginatedPostsResult>> getPostsPaginated({
     int pageSize = 10,
     DocumentSnapshot? lastDoc,
+    AccountType accountType = AccountType.user,
     String? postType, // Optional parameter for filtering by post type
-    String? uid = null, // Optional parameter for filtering by user ID
+    String? uid = null,
+    // Optional parameter for filtering by user ID
   }) async {
     try {
       // Build the base query
       Query<Map<String, dynamic>> query = _db
           .collection(Collections.posts)
           .orderBy('postCreateDate', descending: true)
-          .where('isActive', isEqualTo: true)
-          .where('isPromoted', isEqualTo: true);
+          .where('isActive', isEqualTo: true);
 
+      if (accountType == AccountType.user) {
+        query = query.where('isPromoted', isEqualTo: true);
+      }
       // If uid is provided, filter posts by uid.
       if (uid != null && uid.isNotEmpty) {
-        query = query.where('uid', isEqualTo: uid);
+        query = query
+            .where(accountType == AccountType.user ? 'uid' : 'bid',
+                isEqualTo: uid)
+            .where('bid',
+                isNull: accountType == AccountType.user ? true : false);
       }
 
       // Apply the postType filter if provided (e.g. 'video' for reel posts)
@@ -266,7 +275,7 @@ class PostService {
           if (post.postType == PostType.video.name &&
               post.postVideo != null &&
               post.postVideo!.isNotEmpty) {
-            VideoService().downloadVideoInCache(
+            VideoService.downloadVideoInCache(
                 ApiConstants.getFullVideoURL(post.postVideo!));
           }
 
@@ -333,7 +342,6 @@ class PostService {
             photo: compressPhoto,
             folderName: 'PostImages',
             postType: postType,
-            shouldHideProgress: true,
             onProgress: (progress) {
               // Update progress (0.0 to 1.0).
               progressNotifier.state = progress;
@@ -370,13 +378,11 @@ class PostService {
         photo: thumbnailFile,
         folderName: 'PostImages',
         postType: PostType.image,
-        shouldHideProgress: true,
         onProgress: (progress) {},
       ).then((thumbResult) {
         if (thumbResult.hasData) {
           postModel.videoImage = thumbResult.data!;
         } else {
-          print('THUMBNAIL FAILED');
           statusNotifier.state = PostUploadStatus.error;
 
           return;
@@ -386,19 +392,13 @@ class PostService {
       final compressedVideoFile =
           await ImageService.compressVideoSafely(files.first);
 
-      if (compressedVideoFile == null) {
-        print('VIDEO NULL');
+      if (compressedVideoFile == null) return;
 
-        statusNotifier.state = PostUploadStatus.error;
-        return;
-      }
       // Now upload the video file.
-      final videoResult = await AWSUploader.uploadFile(
+      final videoResult = await AWSUploader.uploadFileCloudinary(
         context: context,
         video: compressedVideoFile,
         folderName: 'PostVideos',
-        postType: PostType.video,
-        shouldHideProgress: false,
         onProgress: (progress) {
           progressNotifier.state = progress;
         },
@@ -407,11 +407,14 @@ class PostService {
         postModel.postVideo = videoResult.data!;
         postModel.postVideoRatio = postVideoRatio;
       } else {
-        print('VIDEO ERROR');
+        print('UPLOAD ERROR: ${videoResult.error}');
         statusNotifier.state = PostUploadStatus.error;
 
         return;
       }
+
+      await VideoService.downloadVideoInCache(
+          ApiConstants.getFullVideoURL(postModel.postVideo!));
     }
 
     // Reset progress after upload.
@@ -419,8 +422,9 @@ class PostService {
 
     // Mark upload as successful.
     statusNotifier.state = PostUploadStatus.success;
+
     // Hide the "Posted!" banner after 2 seconds.
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(milliseconds: 600), () {
       statusNotifier.state = PostUploadStatus.idle;
     });
 
@@ -440,5 +444,39 @@ class PostService {
       postModel.userModel = UserModel.instance;
       container.read(newPostProvider.notifier).state = postModel;
     }
+  }
+
+  // Load the initial 10 posts
+  static Future<void> loadInitialHomePosts(int pageSize) async {
+    final result = await PostService.getPostsPaginated(pageSize: pageSize);
+
+    final HomeFeedCache _cache = HomeFeedCache.instance;
+
+    if (result.hasData) {
+      // Update cache
+      _cache.posts = List<PostModel>.from(result.data!.posts);
+      _cache.lastDocument = result.data!.lastDocument;
+      _cache.hasMore = result.data!.posts.length >= pageSize;
+
+      // keep scrollOffset as-is (likely 0 on fresh load)
+    }
+
+    return;
+  }
+
+  static Future<void> loadInitialReelPosts(int pageSize) async {
+    ReelFeedCache reelFeedCache = ReelFeedCache.instance;
+    final result = await PostService.getPostsPaginated(
+        pageSize: pageSize, postType: 'video');
+
+    if (result.hasData) {
+      // update cache
+      reelFeedCache.posts = result.data!.posts;
+      reelFeedCache.lastDocument = result.data!.lastDocument;
+      reelFeedCache.hasMore = result.data!.posts.length >= pageSize;
+    }
+
+    print(reelFeedCache.isEmpty);
+    return;
   }
 }

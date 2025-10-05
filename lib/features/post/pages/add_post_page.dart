@@ -6,9 +6,11 @@ import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/collections.dart';
 import 'package:mymink/core/constants/colors.dart';
+import 'package:mymink/core/navigation/main_tabbar.dart';
 import 'package:mymink/core/services/aws_uploader.dart';
 import 'package:mymink/core/services/firebase_service.dart';
 import 'package:mymink/core/services/image_service.dart';
+import 'package:mymink/core/services/translation_service.dart';
 import 'package:mymink/core/utils/common_input_decoration.dart';
 import 'package:mymink/core/widgets/custom_button.dart';
 import 'package:mymink/core/widgets/dismiss_keyboard_ontap.dart';
@@ -23,10 +25,15 @@ import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 
 class AddPostPage extends ConsumerStatefulWidget {
-  AddPostPage({super.key, required this.files, required this.postType});
+  AddPostPage(
+      {super.key,
+      required this.files,
+      required this.postType,
+      this.businessId = null});
 
   final List<File> files;
   final PostType postType;
+  final String? businessId;
 
   @override
   _AddPostPageState createState() => _AddPostPageState();
@@ -188,26 +195,32 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
   void _sharePostPressed() async {
     if (_isLoading) return; // Prevent double tap while uploading
 
-    setState(() {
-      _isLoading = true;
-      _isLoadingLbl = "Uploading...";
-    });
+    // setState(() {
+    //   _isLoading = true;
+    //   _isLoadingLbl = "Uploading...";
+    // });
 
     final container = ProviderScope.containerOf(context);
 
     final postId = FirebaseService().db.collection(Collections.posts).doc().id;
+    final caption = _captionController.text.trim();
+    String? enCaption;
+    if (caption.isNotEmpty) {
+      enCaption = await TranslationService.shared.translateText(text: caption);
+    }
     PostModel postModel = PostModel(
-      postID: postId,
-      isPromoted: true,
-      postCreateDate: DateTime.now(),
-      postType: widget.postType.name,
-      uid: FirebaseService().auth.currentUser!.uid,
-      caption: _captionController.text.trim(),
-      isActive: true,
-    );
+        postID: postId,
+        isPromoted: widget.businessId == null ? true : false,
+        postCreateDate: DateTime.now(),
+        postType: widget.postType.name,
+        uid: FirebaseService().auth.currentUser!.uid,
+        caption: caption,
+        enCaption: enCaption,
+        isActive: true,
+        bid: widget.businessId);
 
     Future<void> uploadFuture = PostService.startUploadAndPushPost(
-      context: context,
+      context: mainTabKey.currentState!.getContext(),
       container: container,
       postModel: postModel,
       files: widget.files,
@@ -216,19 +229,27 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
       postVideoRatio: postVideoRatio,
     );
 
-    Navigator.popUntil(
-      context,
-      (route) => route.settings.name == AppRoutes.tabbar,
-    );
+    if (widget.businessId != null) {
+      Navigator.popUntil(
+        context,
+        (route) => route.settings.name == AppRoutes.businessDetailsPage,
+      );
+    } else {
+      mainTabKey.currentState?.jumpToTab(0);
+      Navigator.popUntil(
+        context,
+        (route) => route.settings.name == AppRoutes.tabbar,
+      );
+    }
 
     await uploadFuture;
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        _isLoadingLbl = null;
-      });
-    }
+    // if (mounted) {
+    //   setState(() {
+    //     _isLoading = false;
+    //     _isLoadingLbl = null;
+    //   });
+    // }
   }
 
   @override
@@ -408,7 +429,8 @@ class _AddPostPageState extends ConsumerState<AddPostPage> {
                                   ],
                                 )),
                           ),
-                        if (widget.postType == PostType.video)
+                        if (widget.postType == PostType.video &&
+                            widget.businessId == null)
                           IconButton(
                             padding: const EdgeInsets.all(0),
                             iconSize: 44,

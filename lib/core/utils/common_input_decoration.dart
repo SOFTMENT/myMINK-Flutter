@@ -24,11 +24,11 @@ InputDecoration buildInputDecoration({
     labelText: labelText,
     alignLabelWithHint: alignLabelWithHint,
     labelStyle: const TextStyle(
-      fontSize: 14,
+      fontSize: 13,
       color: AppColors.textGrey,
     ),
     hintStyle: const TextStyle(
-      fontSize: 14,
+      fontSize: 13,
       color: AppColors.textGrey,
     ),
     filled: true,

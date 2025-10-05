@@ -35,4 +35,21 @@ class AppRoutes {
   static const String inboxPage = '/inboxPage';
   static const String showInboxChatPage = '/showInboxChatPage';
   static const String videoCallPage = '/videoCallPage';
+  static const String businessHomePage = '/businessHomePage';
+  static const String businessDetailsPage = '/businessDetailsPage';
+  static const String businessAddPage = '/businessAddPage';
+  static const String businessEditPage = '/businessEditPage';
+  static const String userPostsPage = '/userPostsPage';
+  static const String cameraPage = '/cameraPage';
+  static const String joinLivestreamPage = '/joinLivestreamPage';
+
+  static const String marketplaceHomePage = '/marketplaceHomePage';
+  static const String editOrAddProductPage = '/editOrAddProductPage';
+  static const String viewProductPage = '/viewProductPage';
+  static const String manageProductStorePage = '/manageProductStorePage';
+
+  static const String eventHomePage = '/eventHomePage';
+  static const String showEventPage = '/showEventPage';
+  static const String eventOrganizationPage = '/eventOrganizationPage';
+  static const String addAndEditEventPage = '/addAndEditEventPage';
 }

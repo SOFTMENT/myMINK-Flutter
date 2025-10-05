@@ -37,7 +37,6 @@ class VerificationPage extends StatefulWidget {
       {super.key,
       required this.verificationUid,
       required this.phoneNumber,
-      thi,
       required this.type})
       : fullName = fullName,
         email = null,
@@ -75,22 +74,32 @@ class _VerificationPageState extends State<VerificationPage> {
   int _counter = 60;
   Timer? _timer;
   var _isLoading = false;
-  var _loadingMessage = '';
+  String? _loadingMessage;
   var _code = '';
 
   void _verifiyCode() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      setState(() {
-        _loadingMessage = 'Verifying...';
-        _isLoading = true;
-      });
 
       if (widget.type == VerificationType.EMAIL_VERIFICATION) {
+        if (_code != widget.verificationCode.toString()) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Incorrect verification code')));
+          return;
+        }
+
+        setState(() {
+          _loadingMessage = 'Verifying...';
+          _isLoading = true;
+        });
+
         final password = EncryptionService()
             .decryptMessage(widget.encryptionPassword!, widget.encryptionkey!);
 
         if (password == null) {
+          setState(() {
+            _isLoading = false;
+          });
           await CustomDialog.show(context,
               title: 'Error', message: 'Something went wrong.');
           return;
@@ -128,6 +137,16 @@ class _VerificationPageState extends State<VerificationPage> {
           });
         }
       } else if (widget.type == VerificationType.RESET_PASSWORD) {
+        if (_code != widget.verificationCode.toString()) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Incorrect verification code')));
+          return;
+        }
+        setState(() {
+          _loadingMessage = 'Verifying...';
+          _isLoading = true;
+        });
+
         final result = await UserService.getUserByEmail(
             email: widget.email!, regiType: 'custom');
         if (result.hasError) {
@@ -152,6 +171,11 @@ class _VerificationPageState extends State<VerificationPage> {
           _isLoading = false;
         });
       } else {
+        setState(() {
+          _loadingMessage = 'Verifying...';
+          _isLoading = true;
+        });
+
         final error =
             await TwilioService.verifyTwilioCode(widget.phoneNumber!, _code);
 
@@ -217,7 +241,8 @@ class _VerificationPageState extends State<VerificationPage> {
     });
     if (widget.type == VerificationType.PHONE_VERIFICATION) {
       final error =
-          await TwilioService.sendTwilioVerification(widget.verificationUid!);
+          await TwilioService.sendTwilioVerification(widget.phoneNumber!);
+
       error == null
           ? ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -237,6 +262,9 @@ class _VerificationPageState extends State<VerificationPage> {
           : CustomDialog.show(context, title: "ERROR", message: error);
     }
 
+    setState(() {
+      _isLoading = false;
+    });
     _startTimer();
   }
 

@@ -41,12 +41,12 @@ class _LoginPageState extends State<LoginPage> {
   void _googleLogin() async {
     final result = await AuthService.signInWithGoogle();
 
-    _continueLoginAppleAndGoogle(result, "google");
+    if (result.hasData) _continueLoginAppleAndGoogle(result, "google");
   }
 
   void _appleLogin() async {
     final result = await AuthService.signInWithApple();
-    _continueLoginAppleAndGoogle(result, "apple");
+    if (result.hasData) _continueLoginAppleAndGoogle(result, "apple");
   }
 
   void _continueLoginAppleAndGoogle(

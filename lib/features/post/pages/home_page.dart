@@ -1,18 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:go_router/go_router.dart';
-import 'package:mymink/core/constants/api_constants.dart';
+
 import 'package:mymink/core/constants/app_routes.dart';
 import 'package:mymink/core/constants/colors.dart';
-import 'package:mymink/core/services/aws_uploader.dart';
-import 'package:mymink/core/services/my_video_cache_manager.dart';
-import 'package:mymink/core/services/notification_service.dart';
+
 import 'package:mymink/core/utils/common_input_decoration.dart';
 import 'package:mymink/core/widgets/custom_icon_button.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
@@ -20,18 +16,20 @@ import 'package:mymink/core/widgets/progress_hud.dart';
 
 import 'package:mymink/features/post/data/models/post_model.dart';
 import 'package:mymink/features/post/data/services/post_service.dart';
-import 'package:mymink/features/post/widgets/post_item.dart';
-import 'package:mymink/features/post/widgets/upload_progress_banner.dart';
-import 'package:mymink/features/post/widgets/post_bottom_sheet.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
+import 'package:mymink/features/post/data/stores/home_feed_cache.dart';
+import 'package:mymink/features/post/data/stores/reel_feed_cache.dart';
+
+import 'package:mymink/features/post/widgets/create_post_sheet_content.dart';
+
 import 'package:mymink/features/post/widgets/post_list.dart';
+import 'package:mymink/features/post/widgets/upload_progress_banner.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
+
 import 'package:mymink/features/onboarding/data/models/user_model.dart';
 import 'package:mymink/features/post/widgets/weather_widget.dart';
-import 'package:mymink/features/weather/data/models/weather_model.dart';
-import 'package:mymink/features/weather/widgets/weather_report_sheet.dart';
+
 import 'package:mymink/gen/assets.gen.dart';
-import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
 
 class HomePage extends riverpod.ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -57,12 +55,31 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
   bool _hasMore = true;
   final ScrollController _scrollController = ScrollController();
 
+  final HomeFeedCache _cache = HomeFeedCache.instance;
+
   @override
   void initState() {
     super.initState();
 
+    // 1) Restore from cache immediately if available (no loader, no network)
+    if (!_cache.isEmpty) {
+      postModels = List<PostModel>.from(_cache.posts);
+      _lastDocument = _cache.lastDocument;
+      _hasMore = _cache.hasMore;
+
+      // Schedule scroll restore after first frame to ensure list is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(_cache.scrollOffset);
+        }
+      });
+    } else {
+      loadInitialPosts(true);
+      loadInitialReelPosts(false);
+    }
+
+    // Track scroll (persist offset on every change)
     _scrollController.addListener(_scrollListener);
-    loadInitialPosts(true);
   }
 
   void scrollToTop() {
@@ -72,12 +89,16 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      _refreshIndicatorKey.currentState!.show();
+      _refreshIndicatorKey.currentState?.show();
     }
   }
 
   // Listen to scroll events to trigger loading more posts
   void _scrollListener() {
+    // Save scroll offset to cache
+    _cache.scrollOffset = _scrollController.position.pixels;
+
+    // Trigger pagination
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 200 &&
         !_isLoading &&
@@ -89,41 +110,62 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
 
   // Pull-to-refresh callback
   Future<void> _refreshPosts() async {
-    await NotificationService.showLocalNotification(
-        id: 22221, title: 'Vaibhav', body: 'Sharma');
-    // Reset the pagination state
     setState(() {
       _lastDocument = null;
       _hasMore = true;
     });
-    // Re-fetch the initial posts
+    _cache.clear();
     await loadInitialPosts(false);
   }
 
   // Load the initial 10 posts
   Future<void> loadInitialPosts(bool shouldShowLoader) async {
-    if (shouldShowLoader)
-      setState(() {
-        _isLoading = true;
-      });
+    if (shouldShowLoader) {
+      setState(() => _isLoading = true);
+    }
+
     final result = await PostService.getPostsPaginated(pageSize: _pageSize);
-    if (shouldShowLoader)
-      setState(() {
-        _isLoading = false;
-      });
+
+    if (shouldShowLoader) {
+      setState(() => _isLoading = false);
+    }
+
     if (result.hasData) {
-      postModels.clear();
-      postModels.addAll(result.data!.posts);
+      postModels
+        ..clear()
+        ..addAll(result.data!.posts);
       _lastDocument = result.data!.lastDocument;
-      if (result.data!.posts.length < _pageSize) {
-        _hasMore = false;
-      }
+      _hasMore = result.data!.posts.length >= _pageSize;
+
+      // Update cache
+      _cache.posts = List<PostModel>.from(postModels);
+      _cache.lastDocument = _lastDocument;
+      _cache.hasMore = _hasMore;
+      // keep scrollOffset as-is (likely 0 on fresh load)
+      if (!mounted) return;
 
       setState(() {});
     } else {
-      setState(() {
-        _error = result.error!;
-      });
+      setState(() => _error = result.error!);
+    }
+  }
+
+  Future<void> loadInitialReelPosts(bool shouldShowLoader) async {
+    ReelFeedCache reelFeedCache = ReelFeedCache.instance;
+    final result =
+        await PostService.getPostsPaginated(pageSize: 10, postType: 'video');
+    List<PostModel> reelPosts = [];
+    if (result.hasData) {
+      reelPosts
+        ..clear()
+        ..addAll(result.data!.posts);
+      _lastDocument = result.data!.lastDocument;
+      _hasMore = result.data!.posts.length >= 10;
+
+      // update cache
+      reelFeedCache.posts = List<PostModel>.from(reelPosts);
+      reelFeedCache.lastDocument = _lastDocument;
+      reelFeedCache.hasMore = _hasMore;
     }
   }
 
@@ -131,29 +173,29 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
   void loadMorePosts() async {
     if (!_hasMore || _isFetching) return;
 
-    setState(() {
-      _isFetching = true;
-    });
+    setState(() => _isFetching = true);
 
     final result = await PostService.getPostsPaginated(
       pageSize: _pageSize,
       lastDoc: _lastDocument,
     );
 
-    setState(() {
-      _isFetching = false;
-    });
+    setState(() => _isFetching = false);
 
     if (result.hasData) {
       postModels.addAll(result.data!.posts);
       _lastDocument = result.data!.lastDocument;
-      if (result.data!.posts.length < _pageSize) {
-        _hasMore = false;
-      }
+      _hasMore = result.data!.posts.length >= _pageSize;
+
+      // Update cache
+      _cache.posts = List<PostModel>.from(postModels);
+      _cache.lastDocument = _lastDocument;
+      _cache.hasMore = _hasMore;
 
       setState(() {});
     } else {
-      print(result.error);
+      // keep cache intact on error
+      debugPrint(result.error);
     }
   }
 
@@ -203,7 +245,7 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
                   CustomIconButton(
                       icon: Assets.images.addWhite.image(width: 20, height: 20),
                       onPressed: () {
-                        PostBottomSheet.showCustomBottomSheet(context);
+                        showCreatePostSheet(context: context);
                       }),
                 ],
               ),
@@ -313,12 +355,14 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
   Widget build(BuildContext context) {
     super.build(context);
     ref.listen<PostModel?>(PostService.newPostProvider, (previous, next) {
-      if (next != null) {
+      if (next != null && next.bid == null) {
         setState(() {
           Future.delayed(const Duration(milliseconds: 500), () {
             ref.read(PostService.newPostProvider.notifier).state = null;
           });
           postModels.insert(0, next);
+
+          _cache.posts = List<PostModel>.from(postModels);
         });
       }
     });
@@ -341,23 +385,7 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
                   SliverToBoxAdapter(child: getheader()),
 
                   // 2. The list of posts
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        // while fetching, show a loader at the end
-                        if (index >= postModels.length) {
-                          return const Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-                        final post = postModels[index];
-                        return PostItem(
-                            key: ValueKey(post.postID), postModel: post);
-                      },
-                      childCount: postModels.length + (_isFetching ? 1 : 0),
-                    ),
-                  ),
+                  PostList(postModels: postModels, isFetching: _isFetching),
                 ],
               ),
             ),
@@ -390,6 +418,14 @@ class HomePageState extends riverpod.ConsumerState<HomePage>
 
   @override
   void dispose() {
+    // Save final scroll offset & data before this tab is disposed
+    if (_scrollController.hasClients) {
+      _cache.scrollOffset = _scrollController.position.pixels;
+    }
+    _cache.posts = List<PostModel>.from(postModels);
+    _cache.lastDocument = _lastDocument;
+    _cache.hasMore = _hasMore;
+
     _scrollController.dispose();
     super.dispose();
   }

@@ -1,5 +1,3 @@
-// video_service.dart
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
@@ -12,10 +10,9 @@ class MuteUnmute {
 }
 
 class VideoService extends ChangeNotifier {
-  /// Set by PostItem; no load until visibility triggers
   String? videoUrl;
 
-  final MyVideoCacheManager _manager = MyVideoCacheManager();
+  static final MyVideoCacheManager _manager = MyVideoCacheManager();
 
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
@@ -28,42 +25,68 @@ class VideoService extends ChangeNotifier {
   bool showMuteIcon = false;
   bool _isDisposed = false;
 
+  double _lastVisibility = 0.0;
+  bool _shouldPlayAfterInit = false;
+  bool _isInitializing = false;
+  String? _currentUrl;
+
+  // NEW: remember if we were playing when app went background
+  bool _resumeOnForeground = false;
+
+  static const double _playThreshold = 0.7;
+  static const double _pauseThreshold = 0.3;
+
   static VideoService? currentlyPlaying;
 
-  /// Load & buffer video once triggered
+  static Future<void> downloadVideoInCache(String url) async {
+    final fileInfo = await _manager.getFileFromCache(url);
+    if (fileInfo == null || !(await fileInfo.file.exists())) {
+      await _manager.getSingleFile(url);
+    }
+    return;
+  }
+
   Future<void> loadVideo(String url) async {
+    if (_isDisposed) return;
+
+    if (_currentUrl == url && videoPlayerController != null) {
+      return;
+    }
+
+    if (_isInitializing && _currentUrl == url) {
+      return;
+    }
+
+    _isInitializing = true;
+    _currentUrl = url;
+
     try {
-      disposeVideo();
       final fileInfo = await _manager.getFileFromCache(url);
       VideoPlayerController controller;
       if (fileInfo != null && await fileInfo.file.exists()) {
-        controller = await VideoPlayerController.file(fileInfo.file);
+        controller = VideoPlayerController.file(fileInfo.file);
       } else {
-        controller = await VideoPlayerController.networkUrl(Uri.parse(url));
-        // cache in background
-        _manager.getSingleFile(url);
+        controller = VideoPlayerController.networkUrl(Uri.parse(url));
       }
+
       if (_isDisposed) return;
       await _initController(controller);
-      print(url);
     } catch (_) {
-      // fallback to network-only
-      final controller = await VideoPlayerController.networkUrl(Uri.parse(url));
-      await _initController(controller);
-    }
-  }
-
-  downloadVideoInCache(String url) async {
-    final fileInfo = await _manager.getFileFromCache(url);
-
-    if (fileInfo == null || await fileInfo.file.exists()) {
-      _manager.getSingleFile(url);
+      if (_isDisposed) return;
+      final fallback = VideoPlayerController.networkUrl(Uri.parse(url));
+      await _initController(fallback);
+    } finally {
+      _isInitializing = false;
     }
   }
 
   Future<void> _initController(VideoPlayerController c) async {
     await c.initialize();
     if (_isDisposed) return;
+
+    videoPlayerController?.dispose();
+    chewieController?.dispose();
+
     videoPlayerController = c;
     chewieController = ChewieController(
       videoPlayerController: c,
@@ -73,22 +96,37 @@ class VideoService extends ChangeNotifier {
       allowMuting: false,
     );
     notifyListeners();
+
+    if (_shouldPlayAfterInit || _lastVisibility >= _playThreshold) {
+      _shouldPlayAfterInit = false;
+      if (currentlyPlaying != null && currentlyPlaying != this) {
+        currentlyPlaying!.pauseVideo();
+      }
+      c.setVolume(MuteUnmute.isMuted ? 0 : 1);
+      await c.play();
+      isPlaying = true;
+      currentlyPlaying = this;
+      notifyListeners();
+    }
   }
 
-  /// Handles visibility for preload, play, and pause
   void onVisibilityChanged(VisibilityInfo info) {
-    final v = info.visibleFraction;
+    if (_isDisposed) return;
 
-    // PRELOAD at ~20% visibility
+    _lastVisibility = info.visibleFraction;
+    final v = _lastVisibility;
+
     if (!_hasLoaded && v > 0.2 && videoUrl != null) {
       _hasLoaded = true;
-      loadVideo(videoUrl!); // buffers but does not play
+      unawaited(loadVideo(videoUrl!));
     }
 
-    if (videoPlayerController == null) return;
+    if (videoPlayerController == null) {
+      _shouldPlayAfterInit = v >= _playThreshold;
+      return;
+    }
 
-    // PLAY immediately at >60%
-    if (v > 0.6) {
+    if (v >= _playThreshold) {
       _visibilityTimer?.cancel();
       if (!isPlaying) {
         if (currentlyPlaying != null && currentlyPlaying != this) {
@@ -103,40 +141,67 @@ class VideoService extends ChangeNotifier {
       return;
     }
 
-    // PAUSE with debounce when visibility drops ≤60%
-    _visibilityTimer?.cancel();
-    _visibilityTimer = Timer(const Duration(milliseconds: 200), () {
-      if (isPlaying && info.visibleFraction <= 0.6) {
-        videoPlayerController!.pause();
-        isPlaying = false;
-        if (currentlyPlaying == this) {
-          currentlyPlaying = null;
+    if (v <= _pauseThreshold) {
+      _visibilityTimer?.cancel();
+      _visibilityTimer = Timer(const Duration(milliseconds: 120), () {
+        if (isPlaying &&
+            videoPlayerController != null &&
+            _lastVisibility <= _pauseThreshold) {
+          videoPlayerController!.pause();
+          isPlaying = false;
+          if (currentlyPlaying == this) {
+            currentlyPlaying = null;
+          }
+          notifyListeners();
         }
-        notifyListeners();
-      }
-    });
+      });
+    }
   }
 
-  /// Pause playback
   void pauseVideo() {
+    // Remember intent so we can auto-resume when app returns
+    if (isPlaying) _resumeOnForeground = true;
+
     if (videoPlayerController != null && isPlaying) {
       videoPlayerController!.pause();
       isPlaying = false;
+      if (currentlyPlaying == this) currentlyPlaying = null;
       notifyListeners();
     }
   }
 
-  /// Start playback
   void playVideo() {
     if (videoPlayerController != null && !isPlaying) {
       videoPlayerController!.setVolume(MuteUnmute.isMuted ? 0 : 1);
       videoPlayerController!.play();
       isPlaying = true;
+      currentlyPlaying = this;
       notifyListeners();
+    } else if (videoPlayerController == null && videoUrl != null) {
+      _shouldPlayAfterInit = true;
+      if (!_hasLoaded) {
+        _hasLoaded = true;
+        unawaited(loadVideo(videoUrl!));
+      }
     }
   }
 
-  /// Toggle mute + show icon
+  // NEW: called on app resume by ReelItem
+  void handleAppResumed() {
+    // If we were playing before pause, and we're visible enough now, resume.
+    if (_resumeOnForeground) {
+      _resumeOnForeground = false;
+      if (_lastVisibility >= _playThreshold) {
+        playVideo();
+      }
+    } else {
+      // Even if we weren't marked, if very visible, ensure play.
+      if (_lastVisibility >= _playThreshold) {
+        playVideo();
+      }
+    }
+  }
+
   void toggleMute() {
     if (videoPlayerController == null) return;
     MuteUnmute.isMuted = !MuteUnmute.isMuted;
@@ -150,15 +215,27 @@ class VideoService extends ChangeNotifier {
     });
   }
 
-  /// Dispose controllers & timers
   void disposeVideo() {
     _visibilityTimer?.cancel();
     _muteIconTimer?.cancel();
-    videoPlayerController?.pause();
+
+    try {
+      videoPlayerController?.pause();
+    } catch (_) {}
+
     videoPlayerController?.dispose();
     chewieController?.dispose();
+
     videoPlayerController = null;
     chewieController = null;
+
+    isPlaying = false;
+    _shouldPlayAfterInit = false;
+    _hasLoaded = false;
+    _isInitializing = false;
+    _currentUrl = null;
+    _resumeOnForeground = false;
+
     if (currentlyPlaying == this) {
       currentlyPlaying = null;
     }

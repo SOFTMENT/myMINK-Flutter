@@ -23,6 +23,8 @@ class ViewUserProfilePage extends StatefulWidget {
 }
 
 class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     final userModel = widget.userModel;
@@ -30,6 +32,7 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
       backgroundColor: AppColors.background,
       body: DismissKeyboardOnTap(
         child: SingleChildScrollView(
+          controller: _scrollController,
           physics: const ClampingScrollPhysics(),
           child: Stack(
             clipBehavior: Clip.none,
@@ -101,37 +104,38 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
                       const SizedBox(
                         height: 24,
                       ),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                                height: 50,
-                                text: 'Chat',
-                                onPressed: () {
-                                  context.push(AppRoutes.showInboxChatPage,
-                                      extra: {
-                                        'current': UserModel.instance,
-                                        'friend': widget.userModel
-                                      });
-                                },
-                                backgroundColor: AppColors.textBlack),
-                          ),
-                          const SizedBox(
-                            width: 12,
-                          ),
-                          Expanded(
-                            child: CustomButton(
-                                height: 50,
-                                text: 'Follow',
-                                onPressed: () {},
-                                backgroundColor: AppColors.primaryRed),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      if (widget.userModel.uid != UserModel.instance.uid)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                  height: 50,
+                                  text: 'Chat',
+                                  onPressed: () {
+                                    context.push(AppRoutes.showInboxChatPage,
+                                        extra: {
+                                          'current': UserModel.instance,
+                                          'friend': widget.userModel
+                                        });
+                                  },
+                                  backgroundColor: AppColors.textBlack),
+                            ),
+                            const SizedBox(
+                              width: 12,
+                            ),
+                            Expanded(
+                              child: CustomButton(
+                                  height: 50,
+                                  text: 'Follow',
+                                  onPressed: () {},
+                                  backgroundColor: AppColors.primaryRed),
+                            ),
+                          ],
+                        ),
+                      if (widget.userModel.uid != UserModel.instance.uid)
+                        const SizedBox(
+                          height: 20,
+                        ),
 
                       StatsContainer(
                         uid: widget.userModel.uid ?? '',
@@ -282,7 +286,7 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
                             ),
                             Expanded(
                               child: Text(
-                                userModel.biography!,
+                                userModel.biography!.trim(),
                                 style: const TextStyle(
                                   color: AppColors.textGrey,
                                   fontSize: 13,
@@ -294,7 +298,7 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
                       if (userModel.biography != null &&
                           userModel.biography!.isNotEmpty)
                         const SizedBox(
-                          height: 12,
+                          height: 16,
                         ),
                       // Row(
                       //   crossAxisAlignment: CrossAxisAlignment.center,
@@ -317,11 +321,10 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
                       //     ),
                       //   ],
                       // ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+
                       GridPostWidget(
                         uid: userModel.uid ?? '',
+                        controller: _scrollController,
                       ),
                     ],
                   ),
@@ -332,5 +335,12 @@ class _ViewUserProfilePageState extends State<ViewUserProfilePage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+
+    super.dispose();
   }
 }

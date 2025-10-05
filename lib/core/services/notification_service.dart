@@ -1,9 +1,9 @@
-import 'package:agora_call_kit/agora_call_kit.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:mymink/features/onboarding/data/models/user_model.dart';
+
+import 'package:mymink/features/videocall/data/services/callkit_service.dart';
 
 class NotificationService {
   static final _local = FlutterLocalNotificationsPlugin();
@@ -181,6 +181,29 @@ class NotificationService {
       print('❌ FirebaseFunctionsException: ${e.message}');
     } catch (e) {
       print('❌ Error: $e');
+    }
+  }
+
+  static Future<void> sendPushNotification({
+    required String fcmToken,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      final callable =
+          FirebaseFunctions.instance.httpsCallable('sendUnifiedNotification');
+
+      final result = await callable.call({
+        'fcmToken': fcmToken,
+        'title': title,
+        'body': body,
+      });
+
+      print('✅ Notification sent successfully: ${result.data}');
+    } on FirebaseFunctionsException catch (e) {
+      print('❌ FirebaseFunctionsException: ${e.code} - ${e.message}');
+    } catch (e) {
+      print('❌ Error sending push notification: $e');
     }
   }
 }

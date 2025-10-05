@@ -10,6 +10,8 @@ class ChatBubble extends StatelessWidget {
   final bool isAnimated;
   final String? profilePicUrl;
   final String? senderName;
+  final bool showSenderName;
+  final bool isVideoCall;
 
   const ChatBubble({
     super.key,
@@ -19,7 +21,8 @@ class ChatBubble extends StatelessWidget {
     this.isAnimated = false,
     this.senderName,
     this.profilePicUrl,
-  });
+    this.showSenderName = true,
+  }) : isVideoCall = content == '*--||videocall||--*';
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +49,7 @@ class ChatBubble extends StatelessWidget {
               crossAxisAlignment:
                   isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
-                if (!isUser && senderName != null)
+                if (!isUser && senderName != null && showSenderName)
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 2),
                     child: Text(
@@ -59,35 +62,45 @@ class ChatBubble extends StatelessWidget {
                     ),
                   ),
                 Container(
-                  constraints: const BoxConstraints(maxWidth: 300),
-                  margin: const EdgeInsets.symmetric(vertical: 2),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Colors.black.withValues(alpha: 0.1), // Shadow color
-                        blurRadius: 2, // Softness of the shadow
-                        offset:
-                            const Offset(0, 1), // Horizontal & Vertical shift
-                      ),
-                    ],
-                    color: isUser
-                        ? AppColors.primaryBlue
-                        : const Color.fromARGB(186, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    content,
-                    style: TextStyle(
-                      fontSize: 15,
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    margin: const EdgeInsets.symmetric(vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
                       color: isUser
-                          ? Colors.white
-                          : const Color.fromARGB(221, 0, 0, 0),
+                          ? isVideoCall
+                              ? const Color.fromARGB(255, 0, 64, 124)
+                              : AppColors.primaryBlue
+                          : isVideoCall
+                              ? const Color.fromARGB(255, 255, 212, 212)
+                              : const Color.fromARGB(186, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  ),
-                ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isVideoCall)
+                          Icon(
+                            Icons.videocam,
+                            color: isUser ? Colors.white : Colors.black,
+                          ),
+                        if (isVideoCall)
+                          const SizedBox(
+                            width: 4,
+                          ),
+                        Flexible(
+                          child: Text(
+                            isVideoCall ? 'Video Call' : content,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isUser
+                                  ? Colors.white
+                                  : const Color.fromARGB(255, 0, 0, 0),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6, right: 6, left: 6),
                   child: Text(

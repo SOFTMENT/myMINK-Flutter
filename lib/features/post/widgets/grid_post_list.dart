@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mymink/core/constants/app_routes.dart';
 
 import 'package:mymink/core/services/aws_uploader.dart';
 import 'package:mymink/core/widgets/custom_image.dart';
@@ -7,13 +9,13 @@ import 'package:mymink/features/post/data/models/post_model.dart';
 class GridPostList extends StatelessWidget {
   final List<PostModel> posts;
   final bool hasMore;
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
 
   const GridPostList({
     Key? key,
     required this.posts,
     required this.hasMore,
-    required this.scrollController,
+    this.scrollController = null,
   }) : super(key: key);
 
   @override
@@ -22,9 +24,9 @@ class GridPostList extends StatelessWidget {
     int itemCount = posts.length + (hasMore ? 1 : 0);
     return GridView.builder(
       shrinkWrap: true,
+      controller: scrollController,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(0),
-      controller: scrollController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3, // 3 columns for a 3x3 grid
         crossAxisSpacing: 4,
@@ -54,7 +56,8 @@ class GridPostList extends StatelessWidget {
         }
         return GestureDetector(
           onTap: () {
-            // Handle tap – navigate to post details.
+            context.push(AppRoutes.userPostsPage,
+                extra: {'index': index, 'postModels': posts});
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),

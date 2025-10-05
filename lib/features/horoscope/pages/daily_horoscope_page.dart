@@ -31,7 +31,7 @@ class _DailyHoroscopePageState extends State<DailyHoroscopePage> {
         throw Exception("Document does not exist.");
       }
     } catch (e) {
-      print("Error fetching horoscope: $e");
+  
       return null;
     }
   }
