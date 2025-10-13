@@ -1,0 +1,66 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.6.1'
+        classpath 'com.google.gms:google-services:4.4.2'
+
+    }
+}
+
+rootProject.buildDir = "../build"
+
+subprojects {
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+}
+
+
+
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+// Override specific libraries after all projects are evaluated.
+gradle.projectsEvaluated {
+    subprojects { project ->
+        // For libraries with Java compile target 11.
+        if (['flutter_image_compress_common', 'flutter_web_auth_2' , 'camera_android_camerax' , 'shared_preferences_android'].contains(project.name)) {
+            project.tasks.withType(JavaCompile).configureEach {
+                sourceCompatibility = JavaVersion.VERSION_11
+                targetCompatibility = JavaVersion.VERSION_11
+            }
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions.jvmTarget = "11"
+            }
+        }
+        // For libraries with Java compile target 1.8.
+        else if (['photo_manager', 'sign_in_with_apple', 'video_compress','audioplayers_android','sentry_flutter'].contains(project.name)) {
+            project.tasks.withType(JavaCompile).configureEach {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions.jvmTarget = "1.8"
+                kotlinOptions.languageVersion = "1.8"
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

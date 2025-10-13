@@ -1,0 +1,55 @@
+class AppRoutes {
+  static const String welcome = '/';
+  static const String entry = '/entry';
+  static const String login = '/login';
+  static const String signup = '/signup';
+  static const String complete_profile = '/completeprofile';
+  static const String copyPasswordPage = '/copypassword';
+  static const String retrievePasswordPage = '/retrievepassword';
+  static const String signInPhoneNumberPage = '/signinphone';
+  static const String signUpPhoneNumberPage = '/signupphone';
+  static const String emailVerificationCodePage = '/emailverificationcode';
+  static const String resetVerificationCodePage = '/resetverificationcode';
+  static const String phoneVerificationCodePage = '/phoneverificationcode';
+  static const String tabbar = '/tabbar';
+  static const String addPost = '/addpost';
+  static const String successPost = '/successpost';
+  static const String editProfilePage = '/editProfilePage';
+  static const String savedPostPage = '/savedPostPage';
+  static const String viewUserProfilePage = '/viewUserProfilePage';
+  static const String cryptocurrencyPage = '/cryptocurrencyPage';
+  static const String dailyHoroscopePage = '/dailyHoroscopePage';
+  static const String horoscopeViewPage = '/horoscopeViewPage';
+  static const String chatbBotPage = '/chatBotPage';
+  static const String libraryHomePage = '/libraryHomePage';
+  static const String globalChatPage = '/globalChatPage';
+  static const String musicHomePage = '/musicHomePage';
+  static const String musicPlayerPage = '/musicPlayerPage';
+  static const String todoHomePage = '/todoHomePage';
+  static const String addUpdateTodoPage = '/addUpdateTodoPage';
+  static const String discussionForumPage = '/discussionForumPage';
+  static const String addDiscussionTopicPage = '/addDiscussionTopicPage';
+  static const String discussionDetailPage = '/discussionDetailPage';
+  static const String libraryAtoZPage = '/libraryAtoZPage';
+  static const String userQrcodePage = '/userQrCodePage';
+  static const String inboxPage = '/inboxPage';
+  static const String showInboxChatPage = '/showInboxChatPage';
+  static const String videoCallPage = '/videoCallPage';
+  static const String businessHomePage = '/businessHomePage';
+  static const String businessDetailsPage = '/businessDetailsPage';
+  static const String businessAddPage = '/businessAddPage';
+  static const String businessEditPage = '/businessEditPage';
+  static const String userPostsPage = '/userPostsPage';
+  static const String cameraPage = '/cameraPage';
+  static const String joinLivestreamPage = '/joinLivestreamPage';
+
+  static const String marketplaceHomePage = '/marketplaceHomePage';
+  static const String editOrAddProductPage = '/editOrAddProductPage';
+  static const String viewProductPage = '/viewProductPage';
+  static const String manageProductStorePage = '/manageProductStorePage';
+
+  static const String eventHomePage = '/eventHomePage';
+  static const String showEventPage = '/showEventPage';
+  static const String eventOrganizationPage = '/eventOrganizationPage';
+  static const String addAndEditEventPage = '/addAndEditEventPage';
+}

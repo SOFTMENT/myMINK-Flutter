@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-mymink-dev-a113e-authRole",
+      "UnauthRoleArn": "arn:aws:iam::779846777584:role/amplify-mymink-dev-a113e-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::779846777584:role/amplify-mymink-dev-a113e-authRole",
+      "Region": "ap-southeast-2",
+      "DeploymentBucketName": "amplify-mymink-dev-a113e-deployment",
+      "UnauthRoleName": "amplify-mymink-dev-a113e-unauthRole",
+      "StackName": "amplify-mymink-dev-a113e",
+      "StackId": "arn:aws:cloudformation:ap-southeast-2:779846777584:stack/amplify-mymink-dev-a113e/29cdda10-d1bf-11ef-94ec-02e332a851dd",
+      "AmplifyAppId": "d1jy1dlfc11rp1"
+    },
+    "categories": {
+      "auth": {
+        "myminkf10ac975": {}
+      },
+      "storage": {
+        "mymink": {}
+      }
+    }
+  }
+}

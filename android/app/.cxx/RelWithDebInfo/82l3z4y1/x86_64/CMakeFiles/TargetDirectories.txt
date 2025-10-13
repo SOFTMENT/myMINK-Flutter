@@ -1,0 +1,2 @@
+/Users/softment/Desktop/flutter/mymink/android/app/.cxx/RelWithDebInfo/82l3z4y1/x86_64/CMakeFiles/edit_cache.dir
+/Users/softment/Desktop/flutter/mymink/android/app/.cxx/RelWithDebInfo/82l3z4y1/x86_64/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,70 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services'
+
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.softment.mymink"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+
+    defaultConfig {
+        applicationId = "com.softment.mymink"
+        minSdk = 24
+        targetSdk = flutter.targetSdkVersion
+        versionCode = 193
+        versionName = '2.0.68'
+
+        // ✅ Enable Crashlytics NDK reporting (Optional, but recommended)
+        ndk {
+            debugSymbolLevel = 'FULL'
+        }
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            force "androidx.core:core-ktx:1.15.0"
+            force "androidx.core:core:1.15.0"
+        }
+    }
+
+    buildTypes {
+        release {
+            // Disable code shrinking and resource shrinking
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.debug
+
+
+        }
+    }
+
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:34.1.0')
+
+    implementation 'com.google.firebase:firebase-analytics'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+
+}

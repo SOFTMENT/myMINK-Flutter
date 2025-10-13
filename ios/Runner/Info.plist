@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>This app uses the local network to discover and connect to nearby services.</string>
+
+    <key>NSBonjourServices</key>
+    <array>
+     <string>_dartobservatory._tcp</string>
+    </array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>my MINK</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>my MINK</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.88795297710-i9ip2gjgek201mnqut3cdv78csoppdm2</string>
+				<string>com.softment.mymink.apple</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
+	<key>GoogleMapsAPIKey</key>
+	<string>AIzaSyAERqGu58Xl8gRK0k_3fif2nCpeZuF3vrA</string>
+	<key>IOSTransportSecurity</key>
+	<dict>
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+		</dict>
+	</dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>http</string>
+		<string>https</string>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>my MINK needs access to your camera to enable you to capture and share pictures with your friends and followers in the app. This feature helps you easily create and post visual content.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>my MINK needs access to your location to provide accurate weather updates based on your current location, helping you stay informed about local weather conditions.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>my MINK needs access to your location to provide accurate weather updates based on your current location, helping you stay informed about local weather conditions.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>my MINK needs access to your microphone to enable you to speak during video calls.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>my MINK needs access to your photo library to allow you to select and upload pictures for your profile and posts. This helps you share photos with your followers and personalise your experience within the app.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>my MINK needs access to your photo library to allow you to select and upload pictures for your profile and posts. This helps you share photos with your followers and personalise your experience within the app.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This app needs permission to send you notifications.</string>
+	<key>SignInWithApple</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>voip</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<key>branch_key</key>
+	<string>key_live_mvjwRwp6cXVIpIJM7FOBhjclxsjNUZWv</string>
+</dict>
+</plist>
+
+
+My info.plist
